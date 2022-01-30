@@ -35,8 +35,11 @@ function addCryptoline(element) {
 	button.setAttribute("data-bs-target", "#panelsStayOpen-collapse" + element.rank);
 	button.ariaExpanded = false;
 	button.setAttribute("aria-controls", "panelsStayOpen-collapse" + element.rank);
-	button.innerHTML = element.name;
+	// button.innerHTML = element.name;
 	header.appendChild(button);
+
+	// ajoute un tableau à l'intérieur du bouton
+	button.innerHTML = "<table><thead><tr><td>#" + element.rank + "</td><td><img src='img/" + element.symbol + ".png' /></td><td>" + element.name + "</td></tr></thead></table>";
 
 	// crée une balise div pour le body de l'accordion
 	var divHead = document.createElement("div");
@@ -49,7 +52,7 @@ function addCryptoline(element) {
 	divBody.className = "accordion-body";
 
 	// ajoute l'intérieur du body
-	divBody.innerHTML = "<strong>GG</strong>";
+	divBody.innerHTML = "<strong>GROS DOG</strong>";
 
 	divHead.appendChild(divBody);
 	header.append(divHead);
