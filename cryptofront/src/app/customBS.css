@@ -1,0 +1,21 @@
+/* Ajout style sur accordion */
+
+.accordion-item:first-of-type {
+    border-top-left-radius: 0.75rem !important;
+    border-top-right-radius: 0.75rem !important;
+}
+
+.accordion-item:first-of-type .accordion-button {
+	border-top-left-radius: calc(0.75rem - 1px);
+	border-top-right-radius: calc(0.75rem - 1px);
+}
+
+.accordion-item:last-of-type {
+    border-bottom-right-radius: 0.75rem;
+    border-bottom-left-radius: 0.75rem;
+}
+
+.accordion-item:last-of-type .accordion-button.collapsed {
+    border-bottom-right-radius: calc(0.75rem - 1px);
+    border-bottom-left-radius: calc(0.75rem - 1px);
+}
