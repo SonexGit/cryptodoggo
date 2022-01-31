@@ -1196,3 +1196,20 @@
 	font-size: 13px;
 	color: #012970;
 }
+
+/* Style tableau intérieur accordion */
+
+.header-left {
+	display: table-row;
+	float: left;
+	width: 50%;
+	text-align: left;
+	font-family: 'Helvetica';
+}
+
+.header-right {
+	display: table-row;
+	float: right;
+	width: 50%;
+	text-align: right;
+}

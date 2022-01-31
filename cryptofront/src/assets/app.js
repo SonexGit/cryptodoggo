@@ -15,6 +15,26 @@ $.getJSON("assets/data.json", function(json) {
 	generateCryptoList(data);
 });
 
+function traiterPrix(unPrix){
+	var decimal = unPrix - Math.floor(unPrix);
+	if (decimal > 0.0099999999) {
+		unPrix = Math.round(unPrix * 100) / 100;
+	} else if (decimal > 0.0009999999) {
+		unPrix = Math.round(unPrix * 1000) / 1000;
+	} else if (decimal > 0.0000999999) {
+		unPrix = Math.round(unPrix * 10000) / 10000;
+	} else if (decimal > 0.0000099999) {
+		unPrix = Math.round(unPrix * 100000) / 100000;
+	} else if (decimal > 0.0000009999) {
+		unPrix = Math.round(unPrix * 1000000) / 1000000;
+	} else if (decimal > 0.0000000999) {
+		unPrix = Math.round(unPrix * 10000000) / 10000000;
+	} else {
+		unPrix = Math.round(unPrix * 100) / 100;
+	}
+	return unPrix;
+}
+
 function addCryptoline(element) {
 
 	// crée une balise div avec la classe accordion-item
@@ -37,9 +57,19 @@ function addCryptoline(element) {
 	button.setAttribute("aria-controls", "panelsStayOpen-collapse" + element.rank);
 	// button.innerHTML = element.name;
 	header.appendChild(button);
-
+	
 	// ajoute un tableau à l'intérieur du bouton
-	button.innerHTML = "<table><thead><tr><td>#" + element.rank + "</td><td><img src='img/" + element.symbol + ".png' /></td><td>" + element.name + "</td></tr></thead></table>";
+	button.innerHTML = "<table class='header-left'><tr><td>#" + element.rank + "</td><td><img src='assets/img/logoCM/" + element.symbol + ".png' width='40px' /></td><td>" + element.name + "</td></table>";
+	var colorVariation
+	if (element.changePercent24Hr < 0) {
+		colorVariation = "red-variation";
+	}
+	else if (element.changePercent24Hr > 0) {
+		colorVariation = "green-variation"
+	}
+	
+	var priceText = "<h2 class='legendHeader'>Prix</h2>";
+	button.innerHTML += "<table class='header-right'><tr><td>" + priceText + traiterPrix(element.priceUsd) + "$</td><td class='" + colorVariation + "' >" + (Math.round(element.changePercent24Hr * 100) / 100) + "%</td></tr></table>";
 
 	// crée une balise div pour le body de l'accordion
 	var divHead = document.createElement("div");
@@ -52,7 +82,7 @@ function addCryptoline(element) {
 	divBody.className = "accordion-body";
 
 	// ajoute l'intérieur du body
-	divBody.innerHTML = "<strong>GROS DOG</strong>";
+	divBody.innerHTML = "<strong>GROS DOG léo</strong>";
 
 	divHead.appendChild(divBody);
 	header.append(divHead);

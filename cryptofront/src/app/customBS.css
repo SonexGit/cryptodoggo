@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 /* Ajout style sur accordion */
 
 .accordion-item:first-of-type {
@@ -18,4 +20,69 @@
 .accordion-item:last-of-type .accordion-button.collapsed {
     border-bottom-right-radius: calc(0.75rem - 1px);
     border-bottom-left-radius: calc(0.75rem - 1px);
+}
+
+.accordion-button {
+	font-size: 20px;
+	font-weight: 500;
+	font-family: 'Inter', sans-serif;
+	color: #303030;
+}
+
+/* Style tableau intérieur accordion */
+
+.header-left {
+	display: flex;
+	float: left;
+	width: 60%;
+	height: 100%;
+	text-align: left;
+}
+
+.header-left td {
+	padding-left: 1vw;
+	min-width: 70px;
+}
+
+.header-right {
+	float: right;
+	width: 35%;
+	height: 100%;
+	text-align: right;
+}
+
+.header-right tr {
+	text-align:right;
+	width: 100%;
+	min-width: 100%;
+	max-width: 100%;
+}
+
+.header-right td {
+	text-align:left;
+	min-width: 8vw;
+	max-width: 8vw;
+}
+
+.header-right td:last-of-type {
+	min-width: 7vw;
+	text-align: right;
+}
+
+.red-variation {
+	font-weight: 500;
+	color: red;
+}
+
+.green-variation {
+	font-weight: 500;
+	color: #38B262;
+}
+
+.legendHeader {
+	color: #575757;
+	display:inline-block;
+	font-size: 17px;
+	margin: 0;
+	margin-right: 9px;
 }
