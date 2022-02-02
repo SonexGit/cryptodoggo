@@ -4,8 +4,11 @@
 // 	"timeout": 0,
 // };
 
+// var data;
 // $.ajax(settings).done(function (response) {
 // 	console.log(response);
+//  data = response.data;
+// 	generateCryptoList(data);
 // });
 
 // charge le fichier json de test
@@ -13,6 +16,7 @@ var data;
 $.getJSON("assets/data.json", function(json) {
 	data = json.data;
 	generateCryptoList(data);
+	generateVariation(data);
 });
 
 function traiterPrix(unPrix){
@@ -29,8 +33,18 @@ function traiterPrix(unPrix){
 		unPrix = Math.round(unPrix * 1000000) / 1000000;
 	} else if (decimal > 0.0000000999) {
 		unPrix = Math.round(unPrix * 10000000) / 10000000;
-	} else {
+	} else if (decimal > -0.0000000999) {
+		unPrix = Math.round(unPrix * 10000000) / 10000000;
+	} else if (decimal > -0.0099999999) {
 		unPrix = Math.round(unPrix * 100) / 100;
+	} else if (decimal > -0.0009999999) {
+		unPrix = Math.round(unPrix * 1000) / 1000;
+	} else if (decimal > -0.0000999999) {
+		unPrix = Math.round(unPrix * 10000) / 10000;
+	} else if (decimal > -0.0000099999) {
+		unPrix = Math.round(unPrix * 100000) / 100000;
+	} else if (decimal > -0.0000009999) {
+		unPrix = Math.round(unPrix * 1000000) / 1000000;
 	}
 	return unPrix;
 }
@@ -80,9 +94,9 @@ function addCryptoline(element) {
 	// ajoute une div body
 	var divBody = document.createElement("div");
 	divBody.className = "accordion-body";
-
+	
 	// ajoute l'intérieur du body
-	divBody.innerHTML = "<strong>GROS DOG léo</strong>";
+	divBody.innerHTML = '<apx-chart id="chart" [series]="series" [chart]="chart" [title]="title"></apx-chart>';
 
 	divHead.appendChild(divBody);
 	header.append(divHead);
@@ -93,4 +107,28 @@ function addCryptoline(element) {
 
 function generateCryptoList(data) {
 	data.forEach(element => addCryptoline(element))
+}
+
+function generateVariation(data){
+	var tempVarHausse = 0.0;
+	var tempVarBaisse = 0.0;
+	var h6hausse = document.createElement("h6");
+	var h6baisse = document.createElement("h6");
+
+	for (const element of data) {
+
+		if(element.changePercent24Hr > tempVarHausse){
+			tempVarHausse = element.changePercent24Hr;
+		}
+	
+		if(element.changePercent24Hr < tempVarBaisse){
+			tempVarBaisse = element.changePercent24Hr;
+		}
+	
+	}
+
+	h6hausse.innerHTML = tempVarHausse + "%";
+	h6baisse.innerHTML = tempVarBaisse + "%";
+	document.getElementById("hausse").appendChild(h6hausse);
+	document.getElementById("baisse").appendChild(h6baisse);
 }

@@ -8,6 +8,8 @@ import { far } from '@fortawesome/free-regular-svg-icons';
 import { fab } from '@fortawesome/free-brands-svg-icons';
 library.add(fas, far, fab);
 
+import { NgApexchartsModule } from "ng-apexcharts";
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CryptolineComponent } from './components/cryptoline/cryptoline.component';
@@ -27,7 +29,8 @@ import { MainComponent } from './components/main/main.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    FontAwesomeModule
+    FontAwesomeModule,
+    NgApexchartsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
