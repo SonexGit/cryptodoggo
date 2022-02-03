@@ -116,19 +116,23 @@ function generateVariation(data){
 	var h6baisse = document.createElement("h6");
 
 	for (const element of data) {
-
+		
+		console.log(tempVarHausse);
+		console.log(tempVarBaisse);
 		if(element.changePercent24Hr > tempVarHausse){
 			tempVarHausse = element.changePercent24Hr;
-		}
-	
-		if(element.changePercent24Hr < tempVarBaisse){
+		}	
+		else if(element.changePercent24Hr < tempVarBaisse){
+			// console.log("Element : " + element.changePercent24Hr + "Temp : " + tempVarBaisse);
+			// console.log(element.changePercent24Hr < tempVarBaisse);
+			// console.log(-0.0825280802741397 < -0.1153260716471388);
 			tempVarBaisse = element.changePercent24Hr;
 		}
 	
 	}
 
-	h6hausse.innerHTML = tempVarHausse + "%";
-	h6baisse.innerHTML = tempVarBaisse + "%";
+	h6hausse.innerHTML = traiterPrix(tempVarHausse) + " %";
+	h6baisse.innerHTML = traiterPrix(tempVarBaisse) + " %";
 	document.getElementById("hausse").appendChild(h6hausse);
 	document.getElementById("baisse").appendChild(h6baisse);
 }
