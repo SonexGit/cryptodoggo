@@ -94,18 +94,30 @@ function addCryptoline(element) {
 	// ajoute une div body
 	var divBody = document.createElement("div");
 	divBody.className = "accordion-body";
-	
-	// ajoute l'intérieur du body
-	divBody.innerHTML = '<apx-chart id="chart" [series]="series" [chart]="chart" [title]="title"></apx-chart>';
 
 	divHead.appendChild(divBody);
 	header.append(divHead);
 
 	document.getElementById("accordionPanelsStayOpenExample").appendChild(div);
-
 }
 
 function generateCryptoList(data) {
+	// DESINNER UN GRAPH
+	// const options = {
+	// 	chart: {
+	// 	  height: 300,
+	// 	  type: 'line'
+	// 	},
+	// 	series: [{
+	// 	  name: 'sales',
+	// 	  data: [30, 40, 35, 50, 49, 60, 70, 91, 125]
+	// 	}],
+	// 	xaxis: {
+	// 	  categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999]
+	// 	}
+	//   }
+	// const chart = new ApexCharts(document.querySelector("#chart"), options);
+	// chart.render();
 	data.forEach(element => addCryptoline(element))
 }
 
@@ -116,23 +128,22 @@ function generateVariation(data){
 	var h6baisse = document.createElement("h6");
 
 	for (const element of data) {
-		
-		console.log(tempVarHausse);
-		console.log(tempVarBaisse);
-		if(element.changePercent24Hr > tempVarHausse){
-			tempVarHausse = element.changePercent24Hr;
-		}	
-		else if(element.changePercent24Hr < tempVarBaisse){
-			// console.log("Element : " + element.changePercent24Hr + "Temp : " + tempVarBaisse);
-			// console.log(element.changePercent24Hr < tempVarBaisse);
-			// console.log(-0.0825280802741397 < -0.1153260716471388);
-			tempVarBaisse = element.changePercent24Hr;
+
+		if (element.changePercent24Hr > 0) {
+			if ( (element.changePercent24Hr - tempVarHausse) > 0 ) {
+				tempVarHausse = element.changePercent24Hr;
+			}
 		}
-	
+		else {
+			if ( (element.changePercent24Hr - tempVarBaisse) < 0 ) {
+				tempVarBaisse = element.changePercent24Hr;
+			}
+		}
+
 	}
 
-	h6hausse.innerHTML = traiterPrix(tempVarHausse) + " %";
-	h6baisse.innerHTML = traiterPrix(tempVarBaisse) + " %";
+	h6hausse.innerHTML = traiterPrix(tempVarHausse) + "%";
+	h6baisse.innerHTML = traiterPrix(tempVarBaisse) + "%";
 	document.getElementById("hausse").appendChild(h6hausse);
 	document.getElementById("baisse").appendChild(h6baisse);
 }
