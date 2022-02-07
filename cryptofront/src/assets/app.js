@@ -49,6 +49,37 @@ function traiterPrix(unPrix){
 	return unPrix;
 }
 
+var chart = new Array();
+
+function loadGraph(rank, etat) {
+
+	var divChart = document.getElementById("chart" + rank);
+	var button = document.getElementById("accordion-button" + rank);
+
+	if (etat == "open") {
+		button.setAttribute("onclick", "loadGraph(" + rank + ", 'close')")
+		const options = {
+			chart: {
+				height: 300,
+				type: 'line'
+			},
+			series: [{
+				name: 'sales',
+				data: [30, 40, 35, 50, 49, 60, 70, 91, 125]
+			}],
+			xaxis: {
+				categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999]
+			}
+		}
+		chart[rank] = new ApexCharts(document.querySelector("#chart" + rank), options);
+		chart[rank].render();
+	}
+	else {
+		button.setAttribute("onclick", "loadGraph(" + rank + ", 'open')")
+		chart[rank].destroy();
+	}
+}
+
 function addCryptoline(element) {
 
 	// crée une balise div avec la classe accordion-item
@@ -65,15 +96,17 @@ function addCryptoline(element) {
 	var button = document.createElement("button");
 	button.className = "accordion-button collapsed";
 	button.type = "button";
+	button.id = "accordion-button" + element.rank;
 	button.setAttribute("data-bs-toggle", "collapse");
 	button.setAttribute("data-bs-target", "#panelsStayOpen-collapse" + element.rank);
 	button.ariaExpanded = false;
 	button.setAttribute("aria-controls", "panelsStayOpen-collapse" + element.rank);
 	// button.innerHTML = element.name;
+	button.setAttribute("onclick", "loadGraph(" + element.rank + ", 'open')")
 	header.appendChild(button);
 	
 	// ajoute un tableau à l'intérieur du bouton
-	button.innerHTML = "<table class='header-left'><tr><td>#" + element.rank + "</td><td><img src='assets/img/logoCM/" + element.symbol + ".png' width='40px' /></td><td>" + element.name + "</td></table>";
+	button.innerHTML = "<table class='header-left'><tr><td>#" + element.rank + "</td><td><img src='assets/img/logoCM/" + element.symbol + ".png' width='40px' /></td><td>" + element.name + "</td><td class='legendSymbol'>" + element.symbol + "</td></table>";
 	var colorVariation
 	if (element.changePercent24Hr < 0) {
 		colorVariation = "red-variation";
@@ -95,6 +128,11 @@ function addCryptoline(element) {
 	var divBody = document.createElement("div");
 	divBody.className = "accordion-body";
 
+	// ajoute une div pour le graph dans l'accordion
+	var divGraph = document.createElement("div");
+	divGraph.id = "chart" + element.rank;
+	divBody.appendChild(divGraph);
+
 	divHead.appendChild(divBody);
 	header.append(divHead);
 
@@ -102,30 +140,14 @@ function addCryptoline(element) {
 }
 
 function generateCryptoList(data) {
-	// DESINNER UN GRAPH
-	// const options = {
-	// 	chart: {
-	// 	  height: 300,
-	// 	  type: 'line'
-	// 	},
-	// 	series: [{
-	// 	  name: 'sales',
-	// 	  data: [30, 40, 35, 50, 49, 60, 70, 91, 125]
-	// 	}],
-	// 	xaxis: {
-	// 	  categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999]
-	// 	}
-	//   }
-	// const chart = new ApexCharts(document.querySelector("#chart"), options);
-	// chart.render();
 	data.forEach(element => addCryptoline(element))
 }
 
 function generateVariation(data){
 	var tempVarHausse = 0.0;
 	var tempVarBaisse = 0.0;
-	var h6hausse = document.createElement("h6");
-	var h6baisse = document.createElement("h6");
+	var h3hausse = document.createElement("h4");
+	var h3baisse = document.createElement("h4");
 
 	for (const element of data) {
 
@@ -142,8 +164,8 @@ function generateVariation(data){
 
 	}
 
-	h6hausse.innerHTML = traiterPrix(tempVarHausse) + "%";
-	h6baisse.innerHTML = traiterPrix(tempVarBaisse) + "%";
-	document.getElementById("hausse").appendChild(h6hausse);
-	document.getElementById("baisse").appendChild(h6baisse);
+	h3hausse.innerHTML = traiterPrix(tempVarHausse) + "%";
+	h3baisse.innerHTML = traiterPrix(tempVarBaisse) + "%";
+	document.getElementById("hausse").appendChild(h3hausse);
+	document.getElementById("baisse").appendChild(h3baisse);
 }
