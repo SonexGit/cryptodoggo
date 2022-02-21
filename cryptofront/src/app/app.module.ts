@@ -17,6 +17,7 @@ import { FooterComponent } from './components/footer/footer.component';
 import { HeaderComponent } from './components/header/header.component';
 import { FaIconLibrary, FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { MainComponent } from './components/main/main.component';
+import { SpotifyComponent } from './components/spotify/spotify.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { MainComponent } from './components/main/main.component';
     CryptolineComponent,
     FooterComponent,
     HeaderComponent,
-    MainComponent
+    MainComponent,
+    SpotifyComponent
   ],
   imports: [
     BrowserModule,
