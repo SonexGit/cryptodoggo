@@ -3,7 +3,10 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  spotify: {
+    secretKey: '896ff2b9d9e64c0183a9c006ad9ff1be',
+  }
 };
 
 /*

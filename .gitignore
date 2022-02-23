@@ -1,2 +1,6 @@
 cryptofront/node_modules/
 cryptofront/.angular/
+
+.env
+environments/environments.prod.ts
+environments/environments.ts

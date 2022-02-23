@@ -65,24 +65,11 @@ function loadGraph(rank, etat) {
     var button = document.getElementById("accordion-button" + rank);
 
     if (etat == "open") {
-        // affichage du graph
         button.setAttribute("onclick", "loadGraph(" + rank + ", 'close')")
         const options = loadGraphData(1);
         chart[rank] = new ApexCharts(document.querySelector("#chart" + rank), options);
         chart[rank].render();
-
-        // affichage des changements de fenêtre de temps
-        var list = document.createElement('ul');
-        // innerhtml :
-        // <ul>
-        //   <li>1H</li>
-        //   <li>1J</li>
-        //   <li>1S</li>
-        //   <li>1M</li>
-        //   <li class="active">1A</li>
-        // </ul>
-    } 
-    else {
+    } else {
         button.setAttribute("onclick", "loadGraph(" + rank + ", 'open')")
         chart[rank].destroy();
     }
@@ -93,40 +80,28 @@ function loadGraphData(rank) {
     // on initialise notre graph avec des valeurs de base
     var options = {
         chart: {
-            height: 250,
+            height: 300,
             type: 'area'
         },
         series: [{
-            name: '',
+            name: 'historique',
             data: []
         }],
         xaxis: {
-            type: 'datetime',
             categories: []
-        },
-        yaxis: {
-            labels: {
-                formatter: function (value) {
-                    return value + "$";
-                }
-            },
-        },
-        colors: [ '#ffc850' ],
-        fill: {
-            colors: [ '#ffc850' ]
-        },
-        tooltip: {
-            x: {
-                show: false
-            }
-        },
-        dataLabels: {
-            enabled: false
         }
     }
 
+    // options.series = [{
+    //     name: 'historique',
+    //     data: [100]
+    // }]
+    // options.xaxis = {
+    //     categories: [1914]
+    // }
+
     for (var elem in dataHistory) {
-        options.series[0].data.push(Number(dataHistory[elem].priceUsd).toFixed(2));
+        options.series[0].data.push(dataHistory[elem].priceUsd);
         options.xaxis.categories.push(dataHistory[elem].date);
     }
 
