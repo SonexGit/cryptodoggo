@@ -18,10 +18,14 @@ $.getJSON("assets/data.json", function(json) {
     generateCryptoList(data);
     generateVariation(data);
 });
-var dataHistory;
-$.getJSON("assets/history.json", function(json) {
-    dataHistory = json.data;
-});
+
+function getDataHistory(name) {
+    $.getJSON("assets/history.json", function(json) {
+        dataHistory = json.data;
+        return dataHistory;
+    });
+}
+var dataHistory = getDataHistory("BTC");
 
 function traiterPrix(unPrix) {
     var decimal = unPrix - Math.floor(unPrix);
@@ -62,19 +66,7 @@ function loadGraph(rank, etat) {
 
     if (etat == "open") {
         button.setAttribute("onclick", "loadGraph(" + rank + ", 'close')")
-        const options = {
-            chart: {
-                height: 300,
-                type: 'line'
-            },
-            series: [{
-                name: 'sales',
-                data: [30, 40, 35, 50, 49, 60, 70, 91, 125]
-            }],
-            xaxis: {
-                categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999]
-            }
-        }
+        const options = loadGraphData(1);
         chart[rank] = new ApexCharts(document.querySelector("#chart" + rank), options);
         chart[rank].render();
     } else {
@@ -100,21 +92,20 @@ function loadGraphData(rank) {
         }
     }
 
-    options.series = [{
-        name: 'historique',
-        data: [100]
-    }]
-    options.xaxis = {
-        categories: [1914]
-    }
+    // options.series = [{
+    //     name: 'historique',
+    //     data: [100]
+    // }]
+    // options.xaxis = {
+    //     categories: [1914]
+    // }
 
     for (var elem in dataHistory) {
-        // options.series.data.add(elem.priceUsd);
-        options.series[0].data.add(elem.priceUsd);
-        options.xaxis.data.push(elem.data);
+        options.series[0].data.push(dataHistory[elem].priceUsd);
+        options.xaxis.categories.push(dataHistory[elem].date);
     }
 
-    console.log(options);
+    return options;
 
 }
 
