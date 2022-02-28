@@ -107,6 +107,10 @@
 	list-style: none;
 }
 
+.spotify {
+	width: 300px;
+}
+
 .header-nav>ul {
 	margin: 0;
 	padding: 0;

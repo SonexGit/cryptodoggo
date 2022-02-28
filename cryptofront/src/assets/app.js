@@ -19,13 +19,21 @@ $.getJSON("assets/data.json", function(json) {
     generateVariation(data);
 });
 
-function getDataHistory(name) {
-    $.getJSON("assets/history.json", function(json) {
-        dataHistory = json.data;
-        return dataHistory;
-    });
+function getDataHistory(link) {
+    if (link == '') {
+        $.getJSON("assets/history.json", function(json) {
+            dataHistory = json.data;
+            return dataHistory;
+        });
+    }
+    else {
+        $.getJSON(link, function(json) {
+            dataHistory = json.data;
+            return dataHistory;
+        });
+    }
 }
-var dataHistory = getDataHistory("BTC");
+var dataHistory = getDataHistory("");
 
 function traiterPrix(unPrix) {
     var decimal = unPrix - Math.floor(unPrix);
@@ -72,15 +80,15 @@ function loadGraph(rank, etat) {
         chart[rank].render();
 
         // affichage des changements de fenêtre de temps
+        var divList = document.createElement('div');
+        divList.style = 'text-align: left !important;';
         var list = document.createElement('ul');
-        // innerhtml :
-        // <ul>
-        //   <li>1H</li>
-        //   <li>1J</li>
-        //   <li>1S</li>
-        //   <li>1M</li>
-        //   <li class="active">1A</li>
-        // </ul>
+        list.className = 'listDate'
+        list.innerHTML = '<li onclick="graphSet(${rank}, "1d")">1H</li><li>1J</li><li>1S</li><li>1M</li><li class="listDateActive">1A</li>'
+        divList.append(list);
+
+        document.querySelector("#chart" + rank).after(divList);
+
     } 
     else {
         button.setAttribute("onclick", "loadGraph(" + rank + ", 'open')")
@@ -88,11 +96,77 @@ function loadGraph(rank, etat) {
     }
 }
 
+function graphSet(rank, length) {
+    var newData;
+
+    var JSONargs = '';
+    var JSONlink = 'api.coincap.io/v2/assets/${data[rank].id}/history';
+    var dateEnd = Date.now();
+    dateEnd.setHours(0,0,0,0);
+
+    if (length == '1h') {
+        JSONargs = '?interval=h1';
+        dataHistory = getDataHistory(JSONlink + JSONargs);
+
+        for (var elem in dataHistory) {
+            options.series[0].data.push(Number(dataHistory[elem].priceUsd).toFixed(2));
+            options.xaxis.categories.push(dataHistory[elem].date);
+        }
+    }
+    else if (length == '1d') {
+        JSONargs = '?interval=d1';
+        dataHistory = getDataHistory(JSONlink + JSONargs);
+
+        for (var elem in dataHistory) {
+            options.series[0].data.push(Number(dataHistory[elem].priceUsd).toFixed(2));
+            options.xaxis.categories.push(dataHistory[elem].date);
+        }
+    }
+    else if (length == '1w') {
+        var dateStart = dateEnd.getDate() - 7; 
+        JSONargs = '?interval=h1&start=${dateStart}&end=${dateEnd}';
+        dataHistory = getDataHistory(JSONlink + JSONargs);
+
+        for (var elem in dataHistory) {
+            options.series[0].data.push(Number(dataHistory[elem].priceUsd).toFixed(2));
+            options.xaxis.categories.push(dataHistory[elem].date);
+        }
+    }
+    else if (length == '1m') {
+        var dateStart = dateEnd.getDate();
+        dateStart.setMonth(dateStart.getMonth() - 1);
+        JSONargs = '?interval=1d&start=${dateStart}&end=${dateEnd}';
+        dataHistory = getDataHistory(JSONlink + JSONargs);
+
+        for (var elem in dataHistory) {
+            options.series[0].data.push(Number(dataHistory[elem].priceUsd).toFixed(2));
+            options.xaxis.categories.push(dataHistory[elem].date);
+        }
+    }
+    else if (length == '1y') {
+        var dateStart = dateEnd.getDate();
+        dateStart.setFullYear(dateStart.getFullYear() - 1);
+        JSONargs = '?interval=1d&start=${dateStart}&end=${dateEnd}';
+        dataHistory = getDataHistory(JSONlink + JSONargs);
+
+        for (var elem in dataHistory) {
+            options.series[0].data.push(Number(dataHistory[elem].priceUsd).toFixed(2));
+            options.xaxis.categories.push(dataHistory[elem].date);
+        }
+    }
+
+
+    ApexCharts.exec('chart${rank}', 'updateSeries', [{
+        data: newData
+    }], true);
+}
+
 function loadGraphData(rank) {
 
     // on initialise notre graph avec des valeurs de base
     var options = {
         chart: {
+            id: 'chart${rank}',
             height: 250,
             type: 'area'
         },
