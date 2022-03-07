@@ -19,21 +19,19 @@ $.getJSON("assets/data.json", function(json) {
     generateVariation(data);
 });
 
+var dataHistory;
 function getDataHistory(link) {
     if (link == '') {
         $.getJSON("assets/history.json", function(json) {
             dataHistory = json.data;
-            return dataHistory;
         });
     }
     else {
         $.getJSON(link, function(json) {
             dataHistory = json.data;
-            return dataHistory;
         });
     }
 }
-var dataHistory = getDataHistory("");
 
 function traiterPrix(unPrix) {
     var decimal = unPrix - Math.floor(unPrix);
@@ -136,9 +134,10 @@ const options = {
 function graphSet(rank, length) {
     var newData = new Array();
     var newCategories = new Array();
+    var newDataHistory;
 
     var JSONargs = '';
-    var JSONlink = 'https://api.coincap.io/v2/assets/'+ data[rank].id + '/history';
+    var JSONlink = 'https://api.coincap.io/v2/assets/'+ data[rank - 1].id + '/history';
     var dateEnd = new Date(Date.now());
 
     if (length == '1h') {
@@ -147,33 +146,35 @@ function graphSet(rank, length) {
         dateStart = dateStart.getTime();
         dateEnd = Date.now();
         JSONargs = '?interval=m1&start=' + dateStart + '&end=' + dateEnd;
-        dataHistory = getDataHistory(JSONlink + JSONargs);
+        JSONlink += JSONargs;
+        newDataHistory = getDataHistory(JSONlink);
 
-        for (var elem in dataHistory) {
-            newData = newData.push(Number(dataHistory[elem].priceUsd).toFixed(2));
-            newCategories = newCategories.push(dataHistory[elem].date);
+
+        for (var elem in newDataHistory) {
+            newData = newData.push(Number(newDataHistory[elem].priceUsd).toFixed(2));
+            newCategories = newCategories.push(newDataHistory[elem].date);
         }
     }
     else if (length == '1d') {
         dateEnd.setHours(0,0,0,0);
 		var dateStart = dateEnd.getDate() - 1;
         JSONargs = '?interval=m30&start=' + dateStart + '&end=' + dateEnd;
-        dataHistory = getDataHistory(JSONlink + JSONargs);
+        newDataHistory = getDataHistory(JSONlink + JSONargs);
 
-        for (var elem in dataHistory) {
-            newData.push(Number(dataHistory[elem].priceUsd).toFixed(2));
-            newCategories.push(dataHistory[elem].date);
+        for (var elem in newDataHistory) {
+            newData.push(Number(newDataHistory[elem].priceUsd).toFixed(2));
+            newCategories.push(newDataHistory[elem].date);
         }
     }
     else if (length == '1w') {
         dateEnd.setHours(0,0,0,0);
         var dateStart = dateEnd.getDate() - 7; 
         JSONargs = '?interval=h1&start=' + dateStart + '&end=' + dateEnd;
-        dataHistory = getDataHistory(JSONlink + JSONargs);
+        newDataHistory = getDataHistory(JSONlink + JSONargs);
 
-        for (var elem in dataHistory) {
-            newData.push(Number(dataHistory[elem].priceUsd).toFixed(2));
-            newCategories.push(dataHistory[elem].date);
+        for (var elem in newDataHistory) {
+            newData.push(Number(newDataHistory[elem].priceUsd).toFixed(2));
+            newCategories.push(newDataHistory[elem].date);
         }
     }
     else if (length == '1m') {
@@ -181,11 +182,11 @@ function graphSet(rank, length) {
         var dateStart = dateEnd.getDate();
         dateStart.setMonth(dateStart.getMonth() - 1);
         JSONargs = '?interval=1d&start=' + dateStart + '&end=' + dateEnd;
-        dataHistory = getDataHistory(JSONlink + JSONargs);
+        newDataHistory = getDataHistory(JSONlink + JSONargs);
 
-        for (var elem in dataHistory) {
-            newData.push(Number(dataHistory[elem].priceUsd).toFixed(2));
-            newCategories.push(dataHistory[elem].date);
+        for (var elem in newDataHistory) {
+            newData.push(Number(newDataHistory[elem].priceUsd).toFixed(2));
+            newCategories.push(newDataHistory[elem].date);
         }
     }
     else if (length == '1y') {
@@ -193,11 +194,11 @@ function graphSet(rank, length) {
         var dateStart = dateEnd.getDate();
         dateStart.setFullYear(dateStart.getFullYear() - 1);
         JSONargs = '?interval=1d&start=' + dateStart + '&end=' + dateEnd;
-        dataHistory = getDataHistory(JSONlink + JSONargs);
+        newDataHistory = getDataHistory(JSONlink + JSONargs);
 
-        for (var elem in dataHistory) {
-            newData.push(Number(dataHistory[elem].priceUsd).toFixed(2));
-            newCategories.push(dataHistory[elem].date);
+        for (var elem in newDataHistory) {
+            newData.push(Number(newDataHistory[elem].priceUsd).toFixed(2));
+            newCategories.push(newDataHistory[elem].date);
         }
     }
 

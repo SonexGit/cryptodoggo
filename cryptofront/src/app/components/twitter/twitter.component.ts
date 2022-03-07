@@ -1,8 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { ServiceService } from '../../service.service';
-import { Observable } from 'rxjs';
-import { throwError } from 'rxjs';
-
 @Component({
   selector: 'app-twitter',
   templateUrl: './twitter.component.html',
@@ -30,6 +27,7 @@ export class TwitterComponent implements OnInit {
       console.log("texte",nimportecomment);
       console.log(nimportecomment.data[0]);
       this.idTweet1=nimportecomment.data[0].id;
+      console.log(nimportecomment.data)
       this.idTweet2=nimportecomment.data[1].id;
       this.idTweet3=nimportecomment.data[2].id;
       this.affiche=true;

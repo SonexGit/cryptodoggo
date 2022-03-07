@@ -5,8 +5,12 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./spotify.component.css']
 })
 export class SpotifyComponent implements OnInit {
-
-  constructor() {}
+  listeMusique: any[]
+  aTrouve: boolean
+  constructor() {
+    this.aTrouve = false
+    this.listeMusique = new Array()
+  }
 
   ngOnInit(): void {
 

@@ -18,10 +18,22 @@ $.getJSON("assets/data.json", function(json) {
     generateCryptoList(data);
     generateVariation(data);
 });
-var dataHistory;
-$.getJSON("assets/history.json", function(json) {
-    dataHistory = json.data;
-});
+
+function getDataHistory(link) {
+    if (link == '') {
+        $.getJSON("assets/history.json", function(json) {
+            dataHistory = json.data;
+            return dataHistory;
+        });
+    }
+    else {
+        $.getJSON(link, function(json) {
+            dataHistory = json.data;
+            return dataHistory;
+        });
+    }
+}
+var dataHistory = getDataHistory("");
 
 function traiterPrix(unPrix) {
     var decimal = unPrix - Math.floor(unPrix);
@@ -61,60 +73,166 @@ function loadGraph(rank, etat) {
     var button = document.getElementById("accordion-button" + rank);
 
     if (etat == "open") {
+        // affichage du graph
         button.setAttribute("onclick", "loadGraph(" + rank + ", 'close')")
-        const options = {
-            chart: {
-                height: 300,
-                type: 'line'
-            },
-            series: [{
-                name: 'sales',
-                data: [30, 40, 35, 50, 49, 60, 70, 91, 125]
-            }],
-            xaxis: {
-                categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999]
-            }
-        }
+        const options = loadGraphData(rank);
         chart[rank] = new ApexCharts(document.querySelector("#chart" + rank), options);
         chart[rank].render();
-    } else {
+
+        // affichage des changements de fenêtre de temps
+        var divList = document.createElement('div');
+        divList.id = 'divListDate';
+        divList.style = 'text-align: left !important;';
+        var list = document.createElement('ul');
+        list.className = 'listDate';
+        list.innerHTML = '<li onclick="graphSet(' + rank + ', \'1h\')">1H</li><li onclick="graphSet(' + rank + ', \'1d\')">1J</li><li onclick="graphSet(' + rank + ', \'1w\')">1S</li><li onclick="graphSet(' + rank + ', \'1m\')">1M</li><li onclick="graphSet(' + rank + ', \'1y\')" class="listDateActive">1A</li>'
+        divList.append(list);
+
+        document.querySelector("#chart" + rank).after(divList);
+
+    } 
+    else {
         button.setAttribute("onclick", "loadGraph(" + rank + ", 'open')")
         chart[rank].destroy();
+        document.getElementById('divListDate').remove();
     }
+}
+
+// on initialise notre graph avec des valeurs de base
+const options = {
+	chart: {
+		height: 250,
+		type: 'area'
+	},
+	series: [{
+		name: '',
+		data: []
+	}],
+	xaxis: {
+		type: 'datetime',
+		categories: []
+	},
+	yaxis: {
+		labels: {
+			formatter: function (value) {
+				return value + "$";
+			}
+		},
+	},
+	colors: [ '#ffc850' ],
+	fill: {
+		colors: [ '#ffc850' ]
+	},
+	tooltip: {
+		x: {
+			show: false
+		}
+	},
+	dataLabels: {
+		enabled: false
+	}
+}
+
+function graphSet(rank, length) {
+    var newData = new Array();
+    var newCategories = new Array();
+
+    var JSONargs = '';
+    var JSONlink = 'https://api.coincap.io/v2/assets/'+ data[rank].id + '/history';
+    var dateEnd = new Date(Date.now());
+
+    if (length == '1h') {
+        var dateStart = dateEnd;
+		dateStart.setHours(dateEnd.getHours() - 1);
+        dateStart = dateStart.getTime();
+        dateEnd = Date.now();
+        JSONargs = '?interval=m1&start=' + dateStart + '&end=' + dateEnd;
+        dataHistory = getDataHistory(JSONlink + JSONargs);
+
+        for (var elem in dataHistory) {
+            newData = newData.push(Number(dataHistory[elem].priceUsd).toFixed(2));
+            newCategories = newCategories.push(dataHistory[elem].date);
+        }
+    }
+    else if (length == '1d') {
+        dateEnd.setHours(0,0,0,0);
+		var dateStart = dateEnd.getDate() - 1;
+        JSONargs = '?interval=m30&start=' + dateStart + '&end=' + dateEnd;
+        dataHistory = getDataHistory(JSONlink + JSONargs);
+
+        for (var elem in dataHistory) {
+            newData.push(Number(dataHistory[elem].priceUsd).toFixed(2));
+            newCategories.push(dataHistory[elem].date);
+        }
+    }
+    else if (length == '1w') {
+        dateEnd.setHours(0,0,0,0);
+        var dateStart = dateEnd.getDate() - 7; 
+        JSONargs = '?interval=h1&start=' + dateStart + '&end=' + dateEnd;
+        dataHistory = getDataHistory(JSONlink + JSONargs);
+
+        for (var elem in dataHistory) {
+            newData.push(Number(dataHistory[elem].priceUsd).toFixed(2));
+            newCategories.push(dataHistory[elem].date);
+        }
+    }
+    else if (length == '1m') {
+        dateEnd.setHours(0,0,0,0);
+        var dateStart = dateEnd.getDate();
+        dateStart.setMonth(dateStart.getMonth() - 1);
+        JSONargs = '?interval=1d&start=' + dateStart + '&end=' + dateEnd;
+        dataHistory = getDataHistory(JSONlink + JSONargs);
+
+        for (var elem in dataHistory) {
+            newData.push(Number(dataHistory[elem].priceUsd).toFixed(2));
+            newCategories.push(dataHistory[elem].date);
+        }
+    }
+    else if (length == '1y') {
+        dateEnd.setHours(0,0,0,0);
+        var dateStart = dateEnd.getDate();
+        dateStart.setFullYear(dateStart.getFullYear() - 1);
+        JSONargs = '?interval=1d&start=' + dateStart + '&end=' + dateEnd;
+        dataHistory = getDataHistory(JSONlink + JSONargs);
+
+        for (var elem in dataHistory) {
+            newData.push(Number(dataHistory[elem].priceUsd).toFixed(2));
+            newCategories.push(dataHistory[elem].date);
+        }
+    }
+
+    try {
+        chart[rank].updateOptions({
+            series: [{
+                data: newData
+            }],
+            xaxis: {
+                categories: newCategories
+            }
+        })
+    }
+    catch(e) {
+        alert(e);
+    }
+    
 }
 
 function loadGraphData(rank) {
 
-    // on initialise notre graph avec des valeurs de base
-    var options = {
-        chart: {
-            height: 300,
-            type: 'area'
-        },
-        series: [{
-            name: 'historique',
-            data: []
-        }],
-        xaxis: {
-            categories: []
-        }
-    }
+    var chOptions = options;
 
-    options.series = [{
-        name: 'historique',
-        data: [100]
-    }]
-    options.xaxis = {
-        categories: [1914]
-    }
+    // on initialise notre graph avec des valeurs de base
+    chOptions.chart.id = 'chart' + rank;
+
+    chOptions.series[0].data = [];
+	chOptions.xaxis.categories = [];
 
     for (var elem in dataHistory) {
-        // options.series.data.add(elem.priceUsd);
-        options.series[0].data.add(elem.priceUsd);
-        options.xaxis.data.push(elem.data);
+        chOptions.series[0].data.push(Number(dataHistory[elem].priceUsd).toFixed(2));
+        chOptions.xaxis.categories.push(dataHistory[elem].date);
     }
 
-    console.log(options);
+    return chOptions;
 
 }
 

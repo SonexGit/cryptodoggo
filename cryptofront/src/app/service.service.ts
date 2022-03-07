@@ -14,7 +14,7 @@ export class ServiceService {
   }
 
   getTweet(){
-    var hashtag= "Ivern";
+    var hashtag= "Musk";
     var header = new HttpHeaders().set('Access-Control-Allow-Origin','http://127.0.0.1:4200/%27')
     .set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")     
     .set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")     

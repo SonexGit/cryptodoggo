@@ -1,4 +1,4 @@
-<div class="container">        
+<!-- <div class="container">        
     <div class="row">
         <div class="col-xxl-6 col-md-6">  
             <form action="">
@@ -18,4 +18,14 @@
             </div>                                             
         </div>
     </div>   
+</div> -->
+
+<!-- Cas où la recherche est OK -->
+<div *ngIf="aTrouve; else pasTrouve">
+    <div *ngFor="let musique of listeMusique">
+        
+    </div>
 </div>
+<ng-template #pasTrouve>
+    <h5>Aucune musique</h5>
+</ng-template>
