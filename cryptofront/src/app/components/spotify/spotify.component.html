@@ -1,24 +1,21 @@
 <div class="container">        
-    <form action="">
-        
-        <input type="hidden" id='hidden_token'>
-            <label for="Genre" class="form-label col-sm-2">Genre</label>
-            <select name="" id="select_genre" class="form-control form-control-sm col-sm-10">
-                <option>Sélectionner<option>                    
-            </select>
-            <label for="Genre" class="form-label col-sm-2">Playlist</label>
-            <select name="" id="select_playlist" class="form-control form-control-sm col-sm-10">
-                <option>Sélectionner<option>                    
-            </select>                 
-            <button type="submit" id="btn_submit" class="btn btn-success col-sm-12">Rechercher</button>      
-    </form>        
     <div class="row">
-        <div class="col-sm-6 px-0">
-            <div class="list-group song-list">
+        <div class="col-xxl-6 col-md-6">  
+            <form action="">
+                <input type="hidden" id='hidden_token'>
+                <select name="" id="select_genre" class="form-control form-control-sm mt-3">
+                    <option>Genre<option>                    
+                </select>
+                <select name="" id="select_playlist" class="form-control form-control-sm mt-3">
+                    <option>Playlist<option>                    
+                </select>                 
+                <button type="submit" id="btn_submit" class="btn btn-success mt-3">Rechercher</button>
+            </form>
+        </div>
+        <div class="col-xxl-6 col-md-6">
+            <div class="list-group song-list mt-3">
                 
             </div>                                             
-        </div>
-        <div class="offset-md-1 col-sm-4" id="song-detail">                
         </div>
     </div>   
 </div>

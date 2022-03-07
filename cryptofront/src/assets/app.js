@@ -84,8 +84,10 @@ function loadGraph(rank, etat) {
         divList.style = 'text-align: left !important;';
         var list = document.createElement('ul');
         list.className = 'listDate'
-        list.innerHTML = '<li onclick="graphSet(${rank}, "1d")">1H</li><li>1J</li><li>1S</li><li>1M</li><li class="listDateActive">1A</li>'
+		rank -= 1;
+        list.innerHTML = '<li onclick="graphSet(' + rank + ', \'1h\')">1H</li><li onclick="graphSet(' + rank + ', \'1d\')">1J</li><li onclick="graphSet(' + rank + ', \'1w\')">1S</li><li onclick="graphSet(' + rank + ', \'1m\')">1M</li><li onclick="graphSet(' + rank + ', \'1y\')" class="listDateActive">1A</li>'
         divList.append(list);
+		rank += 1;
 
         document.querySelector("#chart" + rank).after(divList);
 
@@ -96,38 +98,82 @@ function loadGraph(rank, etat) {
     }
 }
 
+// on initialise notre graph avec des valeurs de base
+var options = {
+	chart: {
+		height: 250,
+		type: 'area'
+	},
+	series: [{
+		name: '',
+		data: []
+	}],
+	xaxis: {
+		type: 'datetime',
+		categories: []
+	},
+	yaxis: {
+		labels: {
+			formatter: function (value) {
+				return value + "$";
+			}
+		},
+	},
+	colors: [ '#ffc850' ],
+	fill: {
+		colors: [ '#ffc850' ]
+	},
+	tooltip: {
+		x: {
+			show: false
+		}
+	},
+	dataLabels: {
+		enabled: false
+	}
+}
+
 function graphSet(rank, length) {
     var newData;
 
     var JSONargs = '';
-    var JSONlink = 'api.coincap.io/v2/assets/${data[rank].id}/history';
-    var dateEnd = Date.now();
+    var JSONlink = 'https://api.coincap.io/v2/assets/'+ data[rank].id + '/history';
+    var dateEnd = new Date();
     dateEnd.setHours(0,0,0,0);
 
     if (length == '1h') {
-        JSONargs = '?interval=h1';
+		dateEnd = Date.now();
+		dateStart.setHours(dateEnd.getHours() - 1);
+        JSONargs = '?interval=m1&start=' + dateStart + '&end=' + dateEnd;
         dataHistory = getDataHistory(JSONlink + JSONargs);
 
         for (var elem in dataHistory) {
+			options.series[0].data = [];
+			options.xaxis.categories = [];
             options.series[0].data.push(Number(dataHistory[elem].priceUsd).toFixed(2));
             options.xaxis.categories.push(dataHistory[elem].date);
         }
     }
     else if (length == '1d') {
-        JSONargs = '?interval=d1';
+		var dateStart = dateEnd.getDate() - 1;
+        JSONargs = '?interval=m30&start=' + dateStart + '&end=' + dateEnd;
         dataHistory = getDataHistory(JSONlink + JSONargs);
 
         for (var elem in dataHistory) {
+			options.series[0].data = [];
+			options.xaxis.categories = [];
             options.series[0].data.push(Number(dataHistory[elem].priceUsd).toFixed(2));
             options.xaxis.categories.push(dataHistory[elem].date);
         }
     }
     else if (length == '1w') {
         var dateStart = dateEnd.getDate() - 7; 
-        JSONargs = '?interval=h1&start=${dateStart}&end=${dateEnd}';
+        JSONargs = '?interval=h1&start=' + dateStart + '&end=' + dateEnd;
         dataHistory = getDataHistory(JSONlink + JSONargs);
 
         for (var elem in dataHistory) {
+			options.series[0].data = [];
+			options.xaxis.categories = [];
             options.series[0].data.push(Number(dataHistory[elem].priceUsd).toFixed(2));
             options.xaxis.categories.push(dataHistory[elem].date);
         }
@@ -135,10 +181,12 @@ function graphSet(rank, length) {
     else if (length == '1m') {
         var dateStart = dateEnd.getDate();
         dateStart.setMonth(dateStart.getMonth() - 1);
-        JSONargs = '?interval=1d&start=${dateStart}&end=${dateEnd}';
+        JSONargs = '?interval=1d&start=' + dateStart + '&end=' + dateEnd;
         dataHistory = getDataHistory(JSONlink + JSONargs);
 
         for (var elem in dataHistory) {
+			options.series[0].data = [];
+			options.xaxis.categories = [];
             options.series[0].data.push(Number(dataHistory[elem].priceUsd).toFixed(2));
             options.xaxis.categories.push(dataHistory[elem].date);
         }
@@ -146,10 +194,12 @@ function graphSet(rank, length) {
     else if (length == '1y') {
         var dateStart = dateEnd.getDate();
         dateStart.setFullYear(dateStart.getFullYear() - 1);
-        JSONargs = '?interval=1d&start=${dateStart}&end=${dateEnd}';
+        JSONargs = '?interval=1d&start=' + dateStart + '&end=' + dateEnd;
         dataHistory = getDataHistory(JSONlink + JSONargs);
 
         for (var elem in dataHistory) {
+			options.series[0].data = [];
+			options.xaxis.categories = [];
             options.series[0].data.push(Number(dataHistory[elem].priceUsd).toFixed(2));
             options.xaxis.categories.push(dataHistory[elem].date);
         }
@@ -164,40 +214,7 @@ function graphSet(rank, length) {
 function loadGraphData(rank) {
 
     // on initialise notre graph avec des valeurs de base
-    var options = {
-        chart: {
-            id: 'chart${rank}',
-            height: 250,
-            type: 'area'
-        },
-        series: [{
-            name: '',
-            data: []
-        }],
-        xaxis: {
-            type: 'datetime',
-            categories: []
-        },
-        yaxis: {
-            labels: {
-                formatter: function (value) {
-                    return value + "$";
-                }
-            },
-        },
-        colors: [ '#ffc850' ],
-        fill: {
-            colors: [ '#ffc850' ]
-        },
-        tooltip: {
-            x: {
-                show: false
-            }
-        },
-        dataLabels: {
-            enabled: false
-        }
-    }
+    options.chart.id = 'chart${rank}';
 
     for (var elem in dataHistory) {
         options.series[0].data.push(Number(dataHistory[elem].priceUsd).toFixed(2));
