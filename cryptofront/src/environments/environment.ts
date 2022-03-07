@@ -4,9 +4,7 @@
 
 export const environment = {
   production: false,
-  spotify: {
-    secretKey: '896ff2b9d9e64c0183a9c006ad9ff1be',
-  }
+  secretKey: '896ff2b9d9e64c0183a9c006ad9ff1be'
 };
 
 /*

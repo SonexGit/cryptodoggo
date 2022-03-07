@@ -75,19 +75,18 @@ function loadGraph(rank, etat) {
     if (etat == "open") {
         // affichage du graph
         button.setAttribute("onclick", "loadGraph(" + rank + ", 'close')")
-        const options = loadGraphData(1);
+        const options = loadGraphData(rank);
         chart[rank] = new ApexCharts(document.querySelector("#chart" + rank), options);
         chart[rank].render();
 
         // affichage des changements de fenêtre de temps
         var divList = document.createElement('div');
+        divList.id = 'divListDate';
         divList.style = 'text-align: left !important;';
         var list = document.createElement('ul');
-        list.className = 'listDate'
-		rank -= 1;
+        list.className = 'listDate';
         list.innerHTML = '<li onclick="graphSet(' + rank + ', \'1h\')">1H</li><li onclick="graphSet(' + rank + ', \'1d\')">1J</li><li onclick="graphSet(' + rank + ', \'1w\')">1S</li><li onclick="graphSet(' + rank + ', \'1m\')">1M</li><li onclick="graphSet(' + rank + ', \'1y\')" class="listDateActive">1A</li>'
         divList.append(list);
-		rank += 1;
 
         document.querySelector("#chart" + rank).after(divList);
 
@@ -95,11 +94,12 @@ function loadGraph(rank, etat) {
     else {
         button.setAttribute("onclick", "loadGraph(" + rank + ", 'open')")
         chart[rank].destroy();
+        document.getElementById('divListDate').remove();
     }
 }
 
 // on initialise notre graph avec des valeurs de base
-var options = {
+const options = {
 	chart: {
 		height: 250,
 		type: 'area'
@@ -134,94 +134,105 @@ var options = {
 }
 
 function graphSet(rank, length) {
-    var newData;
+    var newData = new Array();
+    var newCategories = new Array();
 
     var JSONargs = '';
     var JSONlink = 'https://api.coincap.io/v2/assets/'+ data[rank].id + '/history';
-    var dateEnd = new Date();
-    dateEnd.setHours(0,0,0,0);
+    var dateEnd = new Date(Date.now());
 
     if (length == '1h') {
-		dateEnd = Date.now();
+        var dateStart = dateEnd;
 		dateStart.setHours(dateEnd.getHours() - 1);
+        dateStart = dateStart.getTime();
+        dateEnd = Date.now();
         JSONargs = '?interval=m1&start=' + dateStart + '&end=' + dateEnd;
         dataHistory = getDataHistory(JSONlink + JSONargs);
 
         for (var elem in dataHistory) {
-			options.series[0].data = [];
-			options.xaxis.categories = [];
-            options.series[0].data.push(Number(dataHistory[elem].priceUsd).toFixed(2));
-            options.xaxis.categories.push(dataHistory[elem].date);
+            newData = newData.push(Number(dataHistory[elem].priceUsd).toFixed(2));
+            newCategories = newCategories.push(dataHistory[elem].date);
         }
     }
     else if (length == '1d') {
+        dateEnd.setHours(0,0,0,0);
 		var dateStart = dateEnd.getDate() - 1;
         JSONargs = '?interval=m30&start=' + dateStart + '&end=' + dateEnd;
         dataHistory = getDataHistory(JSONlink + JSONargs);
 
         for (var elem in dataHistory) {
-			options.series[0].data = [];
-			options.xaxis.categories = [];
-            options.series[0].data.push(Number(dataHistory[elem].priceUsd).toFixed(2));
-            options.xaxis.categories.push(dataHistory[elem].date);
+            newData.push(Number(dataHistory[elem].priceUsd).toFixed(2));
+            newCategories.push(dataHistory[elem].date);
         }
     }
     else if (length == '1w') {
+        dateEnd.setHours(0,0,0,0);
         var dateStart = dateEnd.getDate() - 7; 
         JSONargs = '?interval=h1&start=' + dateStart + '&end=' + dateEnd;
         dataHistory = getDataHistory(JSONlink + JSONargs);
 
         for (var elem in dataHistory) {
-			options.series[0].data = [];
-			options.xaxis.categories = [];
-            options.series[0].data.push(Number(dataHistory[elem].priceUsd).toFixed(2));
-            options.xaxis.categories.push(dataHistory[elem].date);
+            newData.push(Number(dataHistory[elem].priceUsd).toFixed(2));
+            newCategories.push(dataHistory[elem].date);
         }
     }
     else if (length == '1m') {
+        dateEnd.setHours(0,0,0,0);
         var dateStart = dateEnd.getDate();
         dateStart.setMonth(dateStart.getMonth() - 1);
         JSONargs = '?interval=1d&start=' + dateStart + '&end=' + dateEnd;
         dataHistory = getDataHistory(JSONlink + JSONargs);
 
         for (var elem in dataHistory) {
-			options.series[0].data = [];
-			options.xaxis.categories = [];
-            options.series[0].data.push(Number(dataHistory[elem].priceUsd).toFixed(2));
-            options.xaxis.categories.push(dataHistory[elem].date);
+            newData.push(Number(dataHistory[elem].priceUsd).toFixed(2));
+            newCategories.push(dataHistory[elem].date);
         }
     }
     else if (length == '1y') {
+        dateEnd.setHours(0,0,0,0);
         var dateStart = dateEnd.getDate();
         dateStart.setFullYear(dateStart.getFullYear() - 1);
         JSONargs = '?interval=1d&start=' + dateStart + '&end=' + dateEnd;
         dataHistory = getDataHistory(JSONlink + JSONargs);
 
         for (var elem in dataHistory) {
-			options.series[0].data = [];
-			options.xaxis.categories = [];
-            options.series[0].data.push(Number(dataHistory[elem].priceUsd).toFixed(2));
-            options.xaxis.categories.push(dataHistory[elem].date);
+            newData.push(Number(dataHistory[elem].priceUsd).toFixed(2));
+            newCategories.push(dataHistory[elem].date);
         }
     }
 
-
-    ApexCharts.exec('chart${rank}', 'updateSeries', [{
-        data: newData
-    }], true);
+    try {
+        chart[rank].updateOptions({
+            series: [{
+                data: newData
+            }],
+            xaxis: {
+                categories: newCategories
+            }
+        })
+    }
+    catch(e) {
+        alert(e);
+    }
+    
 }
 
 function loadGraphData(rank) {
 
+    var chOptions = options;
+
     // on initialise notre graph avec des valeurs de base
-    options.chart.id = 'chart${rank}';
+    chOptions.chart.id = 'chart' + rank;
+
+    chOptions.series[0].data = [];
+	chOptions.xaxis.categories = [];
 
     for (var elem in dataHistory) {
-        options.series[0].data.push(Number(dataHistory[elem].priceUsd).toFixed(2));
-        options.xaxis.categories.push(dataHistory[elem].date);
+        chOptions.series[0].data.push(Number(dataHistory[elem].priceUsd).toFixed(2));
+        chOptions.xaxis.categories.push(dataHistory[elem].date);
     }
 
-    return options;
+    return chOptions;
 
 }
 
