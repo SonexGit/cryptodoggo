@@ -232,3 +232,7 @@
 .header-nav .profile .dropdown-item:hover {
 	background-color: #f6f9ff;
 }
+
+.button-spotify:focus {
+	box-shadow: none;
+}

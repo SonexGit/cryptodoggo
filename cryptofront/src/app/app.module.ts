@@ -20,7 +20,6 @@ import { HeaderComponent } from './components/header/header.component';
 import { FaIconLibrary, FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { MainComponent } from './components/main/main.component';
 import { SpotifyComponent } from './components/spotify/spotify.component';
-import { TwitterComponent } from './components/twitter/twitter.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +28,6 @@ import { TwitterComponent } from './components/twitter/twitter.component';
     FooterComponent,
     HeaderComponent,
     MainComponent,
-    TwitterComponent,
     SpotifyComponent
   ],
   imports: [

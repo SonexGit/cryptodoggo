@@ -9,20 +9,13 @@
 
 	<nav class="header-nav ms-auto">
 		<ul class="d-flex align-items-center">
-			<li class="nav-item dropdown">
-				<a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
-					<i class="bi bi-spotify text-success fa-lg"></i>
-				</a>
-				<ul class="dropdown-menu dropdown-menu-end">
-					<li class="dropdown-header">
-						<app-spotify></app-spotify>
-						<!-- <div id="song-detail"></div> -->
-					</li>
-				</ul>
+			<li>
+				<button type="button" class="btn btn-white button-spotify" data-bs-toggle="modal"
+					data-bs-target="#exampleModal"><i class="bi bi-spotify bg-red fa-2x"></i></button>
 			</li>
 
-			<li class="nav-item dropdown">
-				<a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+			<li>
+				<a class="nav-link nav-icon">
 					<i class="bi bi-moon-fill text-dark fa-lg"></i>
 				</a>
 			</li>
@@ -30,3 +23,21 @@
 	</nav>
 
 </header>
+
+
+<div id="exampleModal" class="modal fade" tabindex="-1">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Choisissez votre musique</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<app-spotify></app-spotify>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-bs-dismiss="modal">Fermer</button>
+			</div>
+		</div>
+	</div>
+</div>
