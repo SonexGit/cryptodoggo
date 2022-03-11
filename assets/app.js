@@ -19,21 +19,29 @@ $.getJSON("assets/data.json", function(json) {
     generateVariation(data);
 });
 
+var dataHistory;
 function getDataHistory(link) {
     if (link == '') {
-        $.getJSON("assets/history.json", function(json) {
-            dataHistory = json.data;
-            return dataHistory;
+        $.ajax({
+            url: 'assets/history.json',
+            async: false,
+            dataType: 'json',
+            success: function (json) {
+                dataHistory = json.data;
+            }
         });
     }
     else {
-        $.getJSON(link, function(json) {
-            dataHistory = json.data;
-            return dataHistory;
+        $.ajax({
+            url: link,
+            async: false,
+            dataType: 'json',
+            success: function (json) {
+                dataHistory = json.data;
+            }
         });
     }
 }
-var dataHistory = getDataHistory("");
 
 function traiterPrix(unPrix) {
     var decimal = unPrix - Math.floor(unPrix);
@@ -75,7 +83,7 @@ function loadGraph(rank, etat) {
     if (etat == "open") {
         // affichage du graph
         button.setAttribute("onclick", "loadGraph(" + rank + ", 'close')")
-        const options = loadGraphData(rank);
+        const options = loadGraphData(1);
         chart[rank] = new ApexCharts(document.querySelector("#chart" + rank), options);
         chart[rank].render();
 
@@ -99,7 +107,7 @@ function loadGraph(rank, etat) {
 }
 
 // on initialise notre graph avec des valeurs de base
-const options = {
+var options = {
 	chart: {
 		height: 250,
 		type: 'area'
@@ -136,9 +144,10 @@ const options = {
 function graphSet(rank, length) {
     var newData = new Array();
     var newCategories = new Array();
+    var newDataHistory;
 
     var JSONargs = '';
-    var JSONlink = 'https://api.coincap.io/v2/assets/'+ data[rank].id + '/history';
+    var JSONlink = 'https://api.coincap.io/v2/assets/'+ data[rank - 1].id + '/history';
     var dateEnd = new Date(Date.now());
 
     if (length == '1h') {
@@ -147,33 +156,30 @@ function graphSet(rank, length) {
         dateStart = dateStart.getTime();
         dateEnd = Date.now();
         JSONargs = '?interval=m1&start=' + dateStart + '&end=' + dateEnd;
-        dataHistory = getDataHistory(JSONlink + JSONargs);
-
-        for (var elem in dataHistory) {
-            newData = newData.push(Number(dataHistory[elem].priceUsd).toFixed(2));
-            newCategories = newCategories.push(dataHistory[elem].date);
-        }
+        JSONlink += JSONargs;
+        getDataHistory(JSONlink);   
+        newDataHistory = dataHistory;
     }
     else if (length == '1d') {
         dateEnd.setHours(0,0,0,0);
 		var dateStart = dateEnd.getDate() - 1;
         JSONargs = '?interval=m30&start=' + dateStart + '&end=' + dateEnd;
-        dataHistory = getDataHistory(JSONlink + JSONargs);
+        newDataHistory = getDataHistory(JSONlink + JSONargs);
 
-        for (var elem in dataHistory) {
-            newData.push(Number(dataHistory[elem].priceUsd).toFixed(2));
-            newCategories.push(dataHistory[elem].date);
+        for (var elem in newDataHistory) {
+            newData.push(Number(newDataHistory[elem].priceUsd).toFixed(2));
+            newCategories.push(newDataHistory[elem].date);
         }
     }
     else if (length == '1w') {
         dateEnd.setHours(0,0,0,0);
         var dateStart = dateEnd.getDate() - 7; 
         JSONargs = '?interval=h1&start=' + dateStart + '&end=' + dateEnd;
-        dataHistory = getDataHistory(JSONlink + JSONargs);
+        newDataHistory = getDataHistory(JSONlink + JSONargs);
 
-        for (var elem in dataHistory) {
-            newData.push(Number(dataHistory[elem].priceUsd).toFixed(2));
-            newCategories.push(dataHistory[elem].date);
+        for (var elem in newDataHistory) {
+            newData.push(Number(newDataHistory[elem].priceUsd).toFixed(2));
+            newCategories.push(newDataHistory[elem].date);
         }
     }
     else if (length == '1m') {
@@ -181,24 +187,32 @@ function graphSet(rank, length) {
         var dateStart = dateEnd.getDate();
         dateStart.setMonth(dateStart.getMonth() - 1);
         JSONargs = '?interval=1d&start=' + dateStart + '&end=' + dateEnd;
-        dataHistory = getDataHistory(JSONlink + JSONargs);
+        newDataHistory = getDataHistory(JSONlink + JSONargs);
 
-        for (var elem in dataHistory) {
-            newData.push(Number(dataHistory[elem].priceUsd).toFixed(2));
-            newCategories.push(dataHistory[elem].date);
+        for (var elem in newDataHistory) {
+            newData.push(Number(newDataHistory[elem].priceUsd).toFixed(2));
+            newCategories.push(newDataHistory[elem].date);
         }
     }
     else if (length == '1y') {
         dateEnd.setHours(0,0,0,0);
-        var dateStart = dateEnd.getDate();
-        dateStart.setFullYear(dateStart.getFullYear() - 1);
-        JSONargs = '?interval=1d&start=' + dateStart + '&end=' + dateEnd;
-        dataHistory = getDataHistory(JSONlink + JSONargs);
+        var dateStart = dateEnd;
+        dateStart.setFullYear(new Date().getFullYear() - 1);
+        dateStart = dateStart.getTime();
+        dateEnd = new Date(Date.now());
+        dateEnd.setHours(0,0,0,0);
+        dateEnd = dateEnd.getTime();
 
-        for (var elem in dataHistory) {
-            newData.push(Number(dataHistory[elem].priceUsd).toFixed(2));
-            newCategories.push(dataHistory[elem].date);
-        }
+        JSONargs = '?interval=d1&start=' + dateStart + '&end=' + dateEnd;
+        JSONlink += JSONargs;
+        getDataHistory(JSONlink);   
+        newDataHistory = dataHistory;
+
+    }
+
+    for (var elem in newDataHistory) {
+        newData.push(Number(newDataHistory[elem].priceUsd).toFixed(2));
+        newCategories.push(newDataHistory[elem].date);
     }
 
     try {
@@ -217,12 +231,20 @@ function graphSet(rank, length) {
     
 }
 
+// variable globale permettant de stocker si on charge un graph pour la première fois
+var loadFirstTime = new Array(100).fill(0);
+
 function loadGraphData(rank) {
 
     var chOptions = options;
 
     // on initialise notre graph avec des valeurs de base
     chOptions.chart.id = 'chart' + rank;
+
+    if (loadFirstTime[rank - 1] == 0) {
+        graphSet(rank, '1y');
+        loadFirstTime[rank - 1] = 1;
+    }
 
     chOptions.series[0].data = [];
 	chOptions.xaxis.categories = [];
