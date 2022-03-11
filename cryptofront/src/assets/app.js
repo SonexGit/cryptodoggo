@@ -73,7 +73,7 @@ function loadGraph(rank, etat) {
     if (etat == "open") {
         // affichage du graph
         button.setAttribute("onclick", "loadGraph(" + rank + ", 'close')")
-        const options = loadGraphData(rank);
+        const options = loadGraphData(1);
         chart[rank] = new ApexCharts(document.querySelector("#chart" + rank), options);
         chart[rank].render();
 
