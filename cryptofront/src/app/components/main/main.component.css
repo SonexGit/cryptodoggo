@@ -247,6 +247,7 @@
 }
 
 /* Accordion */
+
 .accordion-item {
 	border: 1px solid #ebeef4;
 }
@@ -1212,4 +1213,8 @@
 	float: right;
 	width: 50%;
 	text-align: right;
+}
+
+.variationCrypto {
+	padding-bottom: 0;
 }

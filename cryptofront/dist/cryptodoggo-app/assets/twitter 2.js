@@ -2,7 +2,7 @@ const baseTwitterSearchUrl = 'https://api.twitter.com/1.1/search/tweets.json';
 const defaultFetchOptions = {
     method: 'GET',
     headers: {
-        'Authorization': '',
+        'Authorization': 'AAAAAAAAAAAAAAAAAAAAAEIoYQEAAAAAygnV%2FyIDRw3%2FBaCfVlgqM23polA%3DZxdmZLWenUW0p8Gmbov1SBvh9Cxja9CmbRF8KriM8vhVwFpJt8',
     },
 };
 

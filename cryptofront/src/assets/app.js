@@ -11,12 +11,30 @@
 // 	generateCryptoList(data);
 // });
 
-// charge le fichier json de test
+var dataRates;
+$.ajax({
+    url: 'https://api.coincap.io/v2/rates',
+    async: false,
+    dataType: 'json',
+    success: function (json) {
+        dataRates = json.data;
+    }
+});
+
 var data;
-$.getJSON("assets/data.json", function(json) {
-    data = json.data;
-    generateCryptoList(data);
-    generateVariation(data);
+var monnaie;
+var monnaieId = "euro";
+$.ajax({
+    url: "https://api.coincap.io/v2/assets",
+    // url: "assets/data.json",
+    async: false,
+    dataType: 'json',
+    success: function (json) {
+        data = json.data;
+        convertir(monnaieId, data);
+        generateCryptoList(data);
+        generateVariation(data);
+    }
 });
 
 var dataHistory;
@@ -41,6 +59,19 @@ function getDataHistory(link) {
             }
         });
     }
+}
+
+function convertir(monnaie, data) {
+    var taux;
+    dataRates.forEach(element => {
+        if (element.id == monnaie) {
+            taux = element.rateUsd;
+            this.monnaie = element;
+        }
+    });
+    data.forEach(element => {
+        element.priceUsd *= taux;
+    });
 }
 
 function traiterPrix(unPrix) {
@@ -83,13 +114,13 @@ function loadGraph(rank, etat) {
     if (etat == "open") {
         // affichage du graph
         button.setAttribute("onclick", "loadGraph(" + rank + ", 'close')")
-        const options = loadGraphData(1);
+        const options = loadGraphData(rank);
         chart[rank] = new ApexCharts(document.querySelector("#chart" + rank), options);
         chart[rank].render();
 
         // affichage des changements de fenêtre de temps
         var divList = document.createElement('div');
-        divList.id = 'divListDate';
+        divList.id = 'divListDate' + rank;
         divList.style = 'text-align: left !important;';
         var list = document.createElement('ul');
         list.className = 'listDate';
@@ -102,7 +133,7 @@ function loadGraph(rank, etat) {
     else {
         button.setAttribute("onclick", "loadGraph(" + rank + ", 'open')")
         chart[rank].destroy();
-        document.getElementById('divListDate').remove();
+        document.getElementById('divListDate' + rank).remove();
     }
 }
 
@@ -123,7 +154,8 @@ var options = {
 	yaxis: {
 		labels: {
 			formatter: function (value) {
-				return value + "$";
+                if (monnaie.currencySymbol) return value.toFixed(4) + monnaie.currencySymbol;
+                else return value.toFixed(4) + monnaie.symbol;
 			}
 		},
 	},
@@ -141,6 +173,9 @@ var options = {
 	}
 }
 
+var oldActive = new Array();
+var didFirstStart = new Array().fill(false);
+
 function graphSet(rank, length) {
     var newData = new Array();
     var newCategories = new Array();
@@ -149,54 +184,50 @@ function graphSet(rank, length) {
     var JSONargs = '';
     var JSONlink = 'https://api.coincap.io/v2/assets/'+ data[rank - 1].id + '/history';
     var dateEnd = new Date(Date.now());
+    var dateStart = dateEnd;
+
+    var divList = document.querySelector("#divListDate" + rank);
+
+    if (oldActive[rank] != undefined && didFirstStart[rank] == true) {
+        divList.children[0].children[oldActive[rank]].classList.remove('listDateActive');
+    }
 
     if (length == '1h') {
-        var dateStart = dateEnd;
+        divList.children[0].children[0].className = 'listDateActive';
+        oldActive[rank] = 0;
 		dateStart.setHours(dateEnd.getHours() - 1);
         dateStart = dateStart.getTime();
         dateEnd = Date.now();
         JSONargs = '?interval=m1&start=' + dateStart + '&end=' + dateEnd;
-        JSONlink += JSONargs;
-        getDataHistory(JSONlink);   
-        newDataHistory = dataHistory;
     }
     else if (length == '1d') {
-        dateEnd.setHours(0,0,0,0);
-		var dateStart = dateEnd.getDate() - 1;
+        divList.children[0].children[1].className = 'listDateActive';
+        oldActive[rank] = 1;
+        dateStart.setDate(dateStart.getDate() - 1);
+        dateStart = dateStart.getTime();
+        dateEnd = Date.now();
         JSONargs = '?interval=m30&start=' + dateStart + '&end=' + dateEnd;
-        newDataHistory = getDataHistory(JSONlink + JSONargs);
-
-        for (var elem in newDataHistory) {
-            newData.push(Number(newDataHistory[elem].priceUsd).toFixed(2));
-            newCategories.push(newDataHistory[elem].date);
-        }
     }
     else if (length == '1w') {
-        dateEnd.setHours(0,0,0,0);
-        var dateStart = dateEnd.getDate() - 7; 
+        divList.children[0].children[2].className = 'listDateActive';
+        oldActive[rank] = 2;
+        dateStart.setDate(dateStart.getDate() - 7); 
+        dateStart = dateStart.getTime();
+        dateEnd = Date.now();
         JSONargs = '?interval=h1&start=' + dateStart + '&end=' + dateEnd;
-        newDataHistory = getDataHistory(JSONlink + JSONargs);
-
-        for (var elem in newDataHistory) {
-            newData.push(Number(newDataHistory[elem].priceUsd).toFixed(2));
-            newCategories.push(newDataHistory[elem].date);
-        }
     }
     else if (length == '1m') {
-        dateEnd.setHours(0,0,0,0);
-        var dateStart = dateEnd.getDate();
+        divList.children[0].children[3].className = 'listDateActive';
+        oldActive[rank] = 3;
         dateStart.setMonth(dateStart.getMonth() - 1);
-        JSONargs = '?interval=1d&start=' + dateStart + '&end=' + dateEnd;
-        newDataHistory = getDataHistory(JSONlink + JSONargs);
-
-        for (var elem in newDataHistory) {
-            newData.push(Number(newDataHistory[elem].priceUsd).toFixed(2));
-            newCategories.push(newDataHistory[elem].date);
-        }
+        dateStart = dateStart.getTime();
+        dateEnd = Date.now();
+        JSONargs = '?interval=d1&start=' + dateStart + '&end=' + dateEnd;
     }
     else if (length == '1y') {
+        if (didFirstStart[rank] == true) divList.children[0].children[4].className = 'listDateActive';
+        oldActive[rank] = 4;
         dateEnd.setHours(0,0,0,0);
-        var dateStart = dateEnd;
         dateStart.setFullYear(new Date().getFullYear() - 1);
         dateStart = dateStart.getTime();
         dateEnd = new Date(Date.now());
@@ -204,14 +235,14 @@ function graphSet(rank, length) {
         dateEnd = dateEnd.getTime();
 
         JSONargs = '?interval=d1&start=' + dateStart + '&end=' + dateEnd;
-        JSONlink += JSONargs;
-        getDataHistory(JSONlink);   
-        newDataHistory = dataHistory;
-
     }
 
+    JSONlink += JSONargs;
+    getDataHistory(JSONlink);
+    newDataHistory = dataHistory;
+
     for (var elem in newDataHistory) {
-        newData.push(Number(newDataHistory[elem].priceUsd).toFixed(2));
+        newData.push(Number(newDataHistory[elem].priceUsd * monnaie.rateUsd).toFixed(5));
         newCategories.push(newDataHistory[elem].date);
     }
 
@@ -226,8 +257,10 @@ function graphSet(rank, length) {
         })
     }
     catch(e) {
-        alert(e);
+        console.log(e);
     }
+    
+    didFirstStart[rank] = true;
     
 }
 
@@ -250,7 +283,7 @@ function loadGraphData(rank) {
 	chOptions.xaxis.categories = [];
 
     for (var elem in dataHistory) {
-        chOptions.series[0].data.push(Number(dataHistory[elem].priceUsd).toFixed(2));
+        chOptions.series[0].data.push(Number(dataHistory[elem].priceUsd * monnaie.rateUsd).toFixed(5));
         chOptions.xaxis.categories.push(dataHistory[elem].date);
     }
 
@@ -293,7 +326,7 @@ function addCryptoline(element) {
     }
 
     var priceText = "<h2 class='legendHeader'>Prix</h2>";
-    button.innerHTML += "<table class='header-right'><tr><td>" + priceText + traiterPrix(element.priceUsd) + "$</td><td class='" + colorVariation + "' >" + (Math.round(element.changePercent24Hr * 100) / 100) + "%</td></tr></table>";
+    button.innerHTML += "<table class='header-right'><tr><td>" + priceText + traiterPrix(element.priceUsd) + (monnaie.currencySymbol || monnaie.symbol) + "</td><td class='" + colorVariation + "' >" + (Math.round(element.changePercent24Hr * 100) / 100) + "%</td></tr></table>";
 
     // crée une balise div pour le body de l'accordion
     var divHead = document.createElement("div");
@@ -321,27 +354,73 @@ function generateCryptoList(data) {
 }
 
 function generateVariation(data) {
-    var tempVarHausse = 0.0;
-    var tempVarBaisse = 0.0;
-    var h3hausse = document.createElement("h4");
-    var h3baisse = document.createElement("h4");
+    var arrayHausse = []
+    var arrayBaisse = []
+    
+    var hausse1 = document.createElement("p");
+    var hausse2 = document.createElement("p");
+    var hausse3 = document.createElement("p");
+    var hausse4 = document.createElement("p");
+
+    var baisse1 = document.createElement("p");
+    var baisse2 = document.createElement("p");
+    var baisse3 = document.createElement("p");
+    var baisse4 = document.createElement("p");
 
     for (const element of data) {
 
         if (element.changePercent24Hr > 0) {
-            if ((element.changePercent24Hr - tempVarHausse) > 0) {
-                tempVarHausse = element.changePercent24Hr;
+            var arrayTemp = {
+                rank: element.rank,
+                logo: element.symbol,
+                variation: element.changePercent24Hr
             }
+            arrayHausse.push(arrayTemp)
         } else {
-            if ((element.changePercent24Hr - tempVarBaisse) < 0) {
-                tempVarBaisse = element.changePercent24Hr;
+            var arrayTemp = {
+                rank: element.rank,
+                logo: element.symbol,
+                variation: element.changePercent24Hr
             }
+            arrayBaisse.push(arrayTemp)
         }
 
     }
+    arrayHausse.sort(function(a, b) {
+        return b.variation - a.variation;
+      });
 
-    h3hausse.innerHTML = traiterPrix(tempVarHausse) + "%";
-    h3baisse.innerHTML = traiterPrix(tempVarBaisse) + "%";
-    document.getElementById("hausse").appendChild(h3hausse);
-    document.getElementById("baisse").appendChild(h3baisse);
+    arrayBaisse.sort(function(a, b) {
+        return a.variation - b.variation;
+    });
+    
+    hausse1.innerHTML = "<img class='mt-4' src='assets/img/logoCM/" + arrayHausse[0].logo + ".png' width='40'>" + "<div class= 'text-success'>" + traiterPrix(arrayHausse[0].variation) + "%</div>";
+    hausse2.innerHTML = "<img class='mt-4' src='assets/img/logoCM/" + arrayHausse[1].logo + ".png' width='40'>" + "<div class= 'text-success'>" + traiterPrix(arrayHausse[1].variation) + "%</div>";
+    hausse3.innerHTML = "<img class='mt-4' src='assets/img/logoCM/" + arrayHausse[2].logo + ".png' width='40'>" + "<div class= 'text-success'>" + traiterPrix(arrayHausse[2].variation) + "%</div>";
+    hausse4.innerHTML = "<img class='mt-4' src='assets/img/logoCM/" + arrayHausse[3].logo + ".png' width='40'>" + "<div class= 'text-success'>" + traiterPrix(arrayHausse[3].variation) + "%</div>";
+
+    baisse1.innerHTML = "<img class='mt-4' src='assets/img/logoCM/" + arrayBaisse[0].logo + ".png' width='40'>" + "<div class= 'text-danger'>" + traiterPrix(arrayBaisse[0].variation) + "%</div>";
+    baisse2.innerHTML = "<img class='mt-4' src='assets/img/logoCM/" + arrayBaisse[1].logo + ".png' width='40'>" + "<div class= 'text-danger'>" + traiterPrix(arrayBaisse[1].variation) + "%</div>";
+    baisse3.innerHTML = "<img class='mt-4' src='assets/img/logoCM/" + arrayBaisse[2].logo + ".png' width='40'>" + "<div class= 'text-danger'>" + traiterPrix(arrayBaisse[2].variation) + "%</div>";
+    baisse4.innerHTML = "<img class='mt-4' src='assets/img/logoCM/" + arrayBaisse[3].logo + ".png' width='40'>" + "<div class= 'text-danger'>" + traiterPrix(arrayBaisse[3].variation) + "%</div>";
+
+    document.getElementById("hausse1").appendChild(hausse1);
+    document.getElementById("hausse2").appendChild(hausse2);
+    document.getElementById("hausse3").appendChild(hausse3);
+    document.getElementById("hausse4").appendChild(hausse4);
+
+    document.getElementById("baisse1").appendChild(baisse1);
+    document.getElementById("baisse2").appendChild(baisse2);
+    document.getElementById("baisse3").appendChild(baisse3);
+    document.getElementById("baisse4").appendChild(baisse4);
+    
 }
+
+var divId;
+
+$('.nav-link').click(function () {
+    divId = $(this).attr('href');
+    $('html, body').animate({
+        scrollTop: $(divId).offset().top - 54
+    }, 100);
+});
