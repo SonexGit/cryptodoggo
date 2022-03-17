@@ -18,9 +18,7 @@ export class AppComponent {
 		// This array contains all the files/CDNs
 		const dynamicScripts = [
 			'assets/app.js',
-			'assets/graph.js',
-			'assets/spotify.js',
-			'assets/twitter.js'
+			'assets/spotify.js'
 		];
 		for (let i = 0; i < dynamicScripts.length; i++) {
 			const node = document.createElement('script');

@@ -70,7 +70,7 @@ function convertir(monnaie, data) {
         }
     });
     data.forEach(element => {
-        element.priceUsd *= taux;
+        element.priceUsd /= taux;
     });
 }
 
@@ -242,7 +242,7 @@ function graphSet(rank, length) {
     newDataHistory = dataHistory;
 
     for (var elem in newDataHistory) {
-        newData.push(Number(newDataHistory[elem].priceUsd * monnaie.rateUsd).toFixed(5));
+        newData.push(Number(newDataHistory[elem].priceUsd / monnaie.rateUsd).toFixed(5));
         newCategories.push(newDataHistory[elem].date);
     }
 
@@ -283,7 +283,7 @@ function loadGraphData(rank) {
 	chOptions.xaxis.categories = [];
 
     for (var elem in dataHistory) {
-        chOptions.series[0].data.push(Number(dataHistory[elem].priceUsd * monnaie.rateUsd).toFixed(5));
+        chOptions.series[0].data.push(Number(dataHistory[elem].priceUsd / monnaie.rateUsd).toFixed(5));
         chOptions.xaxis.categories.push(dataHistory[elem].date);
     }
 
@@ -394,15 +394,15 @@ function generateVariation(data) {
         return a.variation - b.variation;
     });
     
-    hausse1.innerHTML = "<img class='mt-4' src='assets/img/logoCM/" + arrayHausse[0].logo + ".png' width='40'>" + "<div class= 'text-success'>" + traiterPrix(arrayHausse[0].variation) + "%</div>";
-    hausse2.innerHTML = "<img class='mt-4' src='assets/img/logoCM/" + arrayHausse[1].logo + ".png' width='40'>" + "<div class= 'text-success'>" + traiterPrix(arrayHausse[1].variation) + "%</div>";
-    hausse3.innerHTML = "<img class='mt-4' src='assets/img/logoCM/" + arrayHausse[2].logo + ".png' width='40'>" + "<div class= 'text-success'>" + traiterPrix(arrayHausse[2].variation) + "%</div>";
-    hausse4.innerHTML = "<img class='mt-4' src='assets/img/logoCM/" + arrayHausse[3].logo + ".png' width='40'>" + "<div class= 'text-success'>" + traiterPrix(arrayHausse[3].variation) + "%</div>";
+    hausse1.innerHTML = "<img class='mt-2' src='assets/img/logoCM/" + arrayHausse[0].logo + ".png' width='40'>" + traiterPrix(arrayHausse[0].variation) + "%</div>";
+    hausse2.innerHTML = "<img class='mt-2' src='assets/img/logoCM/" + arrayHausse[1].logo + ".png' width='40'>" + traiterPrix(arrayHausse[1].variation) + "%</div>";
+    hausse3.innerHTML = "<img class='mt-2' src='assets/img/logoCM/" + arrayHausse[2].logo + ".png' width='40'>" + traiterPrix(arrayHausse[2].variation) + "%</div>";
+    hausse4.innerHTML = "<img class='mt-2' src='assets/img/logoCM/" + arrayHausse[3].logo + ".png' width='40'>" + traiterPrix(arrayHausse[3].variation) + "%</div>";
 
-    baisse1.innerHTML = "<img class='mt-4' src='assets/img/logoCM/" + arrayBaisse[0].logo + ".png' width='40'>" + "<div class= 'text-danger'>" + traiterPrix(arrayBaisse[0].variation) + "%</div>";
-    baisse2.innerHTML = "<img class='mt-4' src='assets/img/logoCM/" + arrayBaisse[1].logo + ".png' width='40'>" + "<div class= 'text-danger'>" + traiterPrix(arrayBaisse[1].variation) + "%</div>";
-    baisse3.innerHTML = "<img class='mt-4' src='assets/img/logoCM/" + arrayBaisse[2].logo + ".png' width='40'>" + "<div class= 'text-danger'>" + traiterPrix(arrayBaisse[2].variation) + "%</div>";
-    baisse4.innerHTML = "<img class='mt-4' src='assets/img/logoCM/" + arrayBaisse[3].logo + ".png' width='40'>" + "<div class= 'text-danger'>" + traiterPrix(arrayBaisse[3].variation) + "%</div>";
+    baisse1.innerHTML = "<img class='mt-2' src='assets/img/logoCM/" + arrayBaisse[0].logo + ".png' width='40'>" + traiterPrix(arrayBaisse[0].variation) + "%</div>";
+    baisse2.innerHTML = "<img class='mt-2' src='assets/img/logoCM/" + arrayBaisse[1].logo + ".png' width='40'>" + traiterPrix(arrayBaisse[1].variation) + "%</div>";
+    baisse3.innerHTML = "<img class='mt-2' src='assets/img/logoCM/" + arrayBaisse[2].logo + ".png' width='40'>" + traiterPrix(arrayBaisse[2].variation) + "%</div>";
+    baisse4.innerHTML = "<img class='mt-2' src='assets/img/logoCM/" + arrayBaisse[3].logo + ".png' width='40'>" + traiterPrix(arrayBaisse[3].variation) + "%</div>";
 
     document.getElementById("hausse1").appendChild(hausse1);
     document.getElementById("hausse2").appendChild(hausse2);
@@ -415,12 +415,3 @@ function generateVariation(data) {
     document.getElementById("baisse4").appendChild(baisse4);
     
 }
-
-var divId;
-
-$('.nav-link').click(function () {
-    divId = $(this).attr('href');
-    $('html, body').animate({
-        scrollTop: $(divId).offset().top - 54
-    }, 100);
-});
