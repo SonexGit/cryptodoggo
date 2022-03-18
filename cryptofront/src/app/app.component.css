@@ -3,6 +3,7 @@
 	height: 100%;
 	display: block;
 	position: relative;
+	padding-top: 20px;
 }
 
 .wrapper::after {

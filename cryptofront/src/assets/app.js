@@ -11,6 +11,52 @@
 // 	generateCryptoList(data);
 // });
 
+function Timer(timeout) {
+    var self = this;
+    this.interval = timeout ? timeout : 30000;   // Default
+
+    this.run = function (runnable) {
+        setInterval(function () { 
+
+            $.ajax({
+                url: "https://api.coincap.io/v2/assets",
+                async: false,
+                dataType: 'json',
+                success: function (json) {
+                    data = json.data;
+                    convertir(monnaieId, data);
+                    document.getElementById("accordionPanelsStayOpenExample").innerHTML="";
+                    generateCryptoList(data);
+                    generateVariation(data);
+                }
+            });
+        
+            $('.progress-bar').css('display', 'none');
+
+        }, this.interval);
+        setInterval(function () {
+
+            var pourcent = 0;
+
+            var counterBack = setInterval(function () {
+              pourcent++;
+              if (pourcent < 101) {
+                $('.progress-bar').css('display', 'flex');
+                $('.progress-bar').css('width', pourcent + '%');
+              } 
+              else {
+                clearInterval(counterBack);
+              }
+            
+            }, this.interval / 100);
+        }, this.interval * 0.933333333333333);
+    };
+    
+}
+
+var timer = new Timer(30000);
+timer.run();
+
 var dataRates;
 $.ajax({
     url: 'https://api.coincap.io/v2/rates',
@@ -317,7 +363,7 @@ function addCryptoline(element) {
     header.appendChild(button);
 
     // ajoute un tableau à l'intérieur du bouton
-    button.innerHTML = "<table class='header-left'><tr><td>#" + element.rank + "</td><td><img src='assets/img/logoCM/" + element.symbol + ".png' width='40px' /></td><td>" + element.name + "</td><td class='legendSymbol'>" + element.symbol + "</td></table>";
+    button.innerHTML = "<table class='header-left'><tr><td>#" + element.rank + "</td><td><img draggable='false' src='assets/img/logoCM/" + element.symbol + ".png' width='40px' /></td><td>" + element.name + "</td><td class='legendSymbol'>" + element.symbol + "</td></table>";
     var colorVariation
     if (element.changePercent24Hr < 0) {
         colorVariation = "red-variation";
@@ -404,14 +450,22 @@ function generateVariation(data) {
     baisse3.innerHTML = "<img class='mt-2' src='assets/img/logoCM/" + arrayBaisse[2].logo + ".png' width='40'>" + traiterPrix(arrayBaisse[2].variation) + "%</div>";
     baisse4.innerHTML = "<img class='mt-2' src='assets/img/logoCM/" + arrayBaisse[3].logo + ".png' width='40'>" + traiterPrix(arrayBaisse[3].variation) + "%</div>";
 
+    document.getElementById("hausse1").innerHTML = '';
     document.getElementById("hausse1").appendChild(hausse1);
+    document.getElementById("hausse2").innerHTML = '';
     document.getElementById("hausse2").appendChild(hausse2);
+    document.getElementById("hausse3").innerHTML = '';
     document.getElementById("hausse3").appendChild(hausse3);
+    document.getElementById("hausse4").innerHTML = '';
     document.getElementById("hausse4").appendChild(hausse4);
 
+    document.getElementById("baisse1").innerHTML = '';
     document.getElementById("baisse1").appendChild(baisse1);
+    document.getElementById("baisse2").innerHTML = '';
     document.getElementById("baisse2").appendChild(baisse2);
+    document.getElementById("baisse3").innerHTML = '';
     document.getElementById("baisse3").appendChild(baisse3);
+    document.getElementById("baisse4").innerHTML = '';
     document.getElementById("baisse4").appendChild(baisse4);
     
 }
