@@ -363,7 +363,7 @@ function addCryptoline(element) {
     header.appendChild(button);
 
     // ajoute un tableau à l'intérieur du bouton
-    button.innerHTML = "<table class='header-left'><tr><td>#" + element.rank + "</td><td><img draggable='false' src='assets/img/logoCM/" + element.symbol + ".png' width='40px' /></td><td>" + element.name + "</td><td class='legendSymbol'>" + element.symbol + "</td></table>";
+    button.innerHTML = "<table class='header-left'><tr><td class='rankCrypto'>#" + element.rank + "</td><td><img class='logoCrypto' draggable='false' src='assets/img/logoCM/" + element.symbol + ".png' width='40px' /></td><td>" + element.name + "</td><td class='legendSymbol'>" + element.symbol + "</td></table>";
     var colorVariation
     if (element.changePercent24Hr < 0) {
         colorVariation = "red-variation";
