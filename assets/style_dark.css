@@ -1,0 +1,64 @@
+:root {
+    --dark-color: #2d2727;
+    --light-dark-color: rgb(63, 63, 63);
+}
+
+.header {
+    background-color: var(--dark-color) !important;
+}
+
+#loadingBar {
+    background-color: var(--dark-color) !important;
+}
+
+.bi {
+    color: white;
+    fill: white;
+}
+
+.card {
+    background-color: var(--dark-color) !important;
+}
+
+.carteHausse {
+    background-color: var(--light-dark-color) !important;
+}
+
+.carteBaisse {
+    background-color: var(--light-dark-color) !important;
+}
+
+/* Ligne cryptomonnaies */
+
+.accordion-item {
+    color: white;
+    background-color: var(--light-dark-color) !important;
+}
+
+.accordion-button {
+    background-color: var(--dark-color) !important;
+}
+
+.accordion-item td {
+    color: white;
+}
+
+.legendSymbol {
+    color: rgb(200, 200, 200) !important;
+}
+
+.legendHeader {
+    color: rgb(200, 200, 200) !important;
+}
+
+.red-variation {
+    color: red !important;
+}
+
+.green-variation {   
+    color: #38B262 !important;
+}
+
+.accordion-button::after {
+    filter: invert();
+}

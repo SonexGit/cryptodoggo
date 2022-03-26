@@ -469,3 +469,13 @@ function generateVariation(data) {
     document.getElementById("baisse4").appendChild(baisse4);
     
 }
+
+var darkModeEnabled = false;
+
+function darkModeSwitch() {
+
+    if (!darkModeEnabled) {
+        // $('head').append('<link rel="stylesheet" href="" ');
+        darkModeEnabled = true;
+    }
+}

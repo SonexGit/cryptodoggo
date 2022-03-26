@@ -278,6 +278,9 @@ THE SOFTWARE.
 ng-apexcharts
 MIT
 
+ngx-cookie-service
+MIT
+
 ngx-tweet
 MIT
 MIT License
