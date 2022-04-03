@@ -176,11 +176,11 @@ function loadGraph(rank, etat) {
         list.className = 'listDate';
         list.innerHTML =
             `
-            <li onclick="graphSet(' + rank + ', \'1h\')">1H</li>
-            <li onclick="graphSet(' + rank + ', \'1d\')">1J</li>
-            <li onclick="graphSet(' + rank + ', \'1w\')">1S</li>
-            <li onclick="graphSet(' + rank + ', \'1m\')">1M</li>
-            <li onclick="graphSet(' + rank + ', \'1y\')" class="listDateActive">1A</li>
+            <li onclick="graphSet('${rank}', \'1h\')">1H</li>
+            <li onclick="graphSet('${rank}', \'1d\')">1J</li>
+            <li onclick="graphSet('${rank}', \'1w\')">1S</li>
+            <li onclick="graphSet('${rank}', \'1m\')">1M</li>
+            <li onclick="graphSet('${rank}', \'1y\')" class="listDateActive">1A</li>
         `
         divList.append(list);
         document.querySelector("#chart" + rank).after(divList);
