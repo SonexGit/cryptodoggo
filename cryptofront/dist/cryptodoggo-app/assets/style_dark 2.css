@@ -1,6 +1,10 @@
 :root {
-    --dark-color: #2d2727;
-    --light-dark-color: rgb(63, 63, 63);
+    --dark-color: #00152c;
+    --light-dark-color: #002752;
+}
+
+.wrapper:after {
+	filter: invert(100%) hue-rotate(0deg) brightness(0.8);
 }
 
 .header {
@@ -61,4 +65,8 @@
 
 .accordion-button::after {
     filter: invert();
+}
+
+.pb {
+    background-color: #3a86ff;
 }

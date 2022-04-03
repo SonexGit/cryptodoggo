@@ -12,10 +12,9 @@
 // });
 
 function Timer(timeout) {
-    var self = this;
     this.interval = timeout ? timeout : 30000;   // Default
 
-    this.run = function (runnable) {
+    this.run = function () {
         setInterval(function () { 
 
             $.ajax({
@@ -35,9 +34,7 @@ function Timer(timeout) {
 
         }, this.interval);
         setInterval(function () {
-
             var pourcent = 0;
-
             var counterBack = setInterval(function () {
               pourcent++;
               if (pourcent < 101) {
@@ -47,7 +44,6 @@ function Timer(timeout) {
               else {
                 clearInterval(counterBack);
               }
-            
             }, this.interval / 100);
         }, this.interval * 0.933333333333333);
     };
@@ -70,9 +66,9 @@ $.ajax({
 var data;
 var monnaie;
 var monnaieId = "euro";
+
 $.ajax({
     url: "https://api.coincap.io/v2/assets",
-    // url: "assets/data.json",
     async: false,
     dataType: 'json',
     success: function (json) {
@@ -120,8 +116,15 @@ function convertir(monnaie, data) {
     });
 }
 
+/**
+ * Permet de convertir un prix
+ * @param unPrix 
+ * @return unPrix
+ */
 function traiterPrix(unPrix) {
+
     var decimal = unPrix - Math.floor(unPrix);
+
     if (decimal > 0.0099999999) {
         unPrix = Math.round(unPrix * 100) / 100;
     } else if (decimal > 0.0009999999) {
@@ -147,6 +150,7 @@ function traiterPrix(unPrix) {
     } else if (decimal > -0.0000009999) {
         unPrix = Math.round(unPrix * 1000000) / 1000000;
     }
+
     return unPrix;
 }
 
@@ -154,36 +158,41 @@ var chart = new Array();
 
 function loadGraph(rank, etat) {
 
-    var divChart = document.getElementById("chart" + rank);
     var button = document.getElementById("accordion-button" + rank);
 
     if (etat == "open") {
-        // affichage du graph
+        
+        /* Affichage du graphe */
         button.setAttribute("onclick", "loadGraph(" + rank + ", 'close')")
         const options = loadGraphData(rank);
         chart[rank] = new ApexCharts(document.querySelector("#chart" + rank), options);
         chart[rank].render();
-
-        // affichage des changements de fenêtre de temps
+        
+        /* Affichage des changements de fenêtre de temps */
         var divList = document.createElement('div');
         divList.id = 'divListDate' + rank;
         divList.style = 'text-align: left !important;';
         var list = document.createElement('ul');
         list.className = 'listDate';
-        list.innerHTML = '<li onclick="graphSet(' + rank + ', \'1h\')">1H</li><li onclick="graphSet(' + rank + ', \'1d\')">1J</li><li onclick="graphSet(' + rank + ', \'1w\')">1S</li><li onclick="graphSet(' + rank + ', \'1m\')">1M</li><li onclick="graphSet(' + rank + ', \'1y\')" class="listDateActive">1A</li>'
+        list.innerHTML = 
+        `
+            <li onclick="graphSet(' + rank + ', \'1h\')">1H</li>
+            <li onclick="graphSet(' + rank + ', \'1d\')">1J</li>
+            <li onclick="graphSet(' + rank + ', \'1w\')">1S</li>
+            <li onclick="graphSet(' + rank + ', \'1m\')">1M</li>
+            <li onclick="graphSet(' + rank + ', \'1y\')" class="listDateActive">1A</li>
+        `
         divList.append(list);
-
         document.querySelector("#chart" + rank).after(divList);
+    }else {
 
-    } 
-    else {
         button.setAttribute("onclick", "loadGraph(" + rank + ", 'open')")
         chart[rank].destroy();
         document.getElementById('divListDate' + rank).remove();
     }
 }
 
-// on initialise notre graph avec des valeurs de base
+/* On initialise notre graphe avec des valeurs de base */
 var options = {
 	chart: {
 		height: 250,
@@ -310,14 +319,14 @@ function graphSet(rank, length) {
     
 }
 
-// variable globale permettant de stocker si on charge un graph pour la première fois
+/* Variable globale permettant de stocker si on charge un graphe pour la première fois */
 var loadFirstTime = new Array(100).fill(0);
 
 function loadGraphData(rank) {
 
     var chOptions = options;
 
-    // on initialise notre graph avec des valeurs de base
+    /* On initialise notre graph avec des valeurs de base */
     chOptions.chart.id = 'chart' + rank;
 
     if (loadFirstTime[rank - 1] == 0) {
@@ -363,8 +372,19 @@ function addCryptoline(element) {
     header.appendChild(button);
 
     // ajoute un tableau à l'intérieur du bouton
-    button.innerHTML = "<table class='header-left'><tr><td class='rankCrypto'>#" + element.rank + "</td><td><img class='logoCrypto' draggable='false' src='assets/img/logoCM/" + element.symbol + ".png' width='40px' /></td><td>" + element.name + "</td><td class='legendSymbol'>" + element.symbol + "</td></table>";
-    var colorVariation
+
+    button.innerHTML = 
+    `
+        <table class='header-left'>
+            <tr>
+                <td class='rankCrypto'>#${element.rank}</td>
+                <td><img class='logoCrypto' draggable='false' src='assets/img/logoCM/${element.symbol}.png' width='40px' /></td>
+                <td>${element.name}</td>
+                <td class='legendSymbol'>${element.symbol}</td>
+            </tr>
+        </table>
+    `
+    var colorVariation;
     if (element.changePercent24Hr < 0) {
         colorVariation = "red-variation";
     } else if (element.changePercent24Hr > 0) {
@@ -434,7 +454,7 @@ function generateVariation(data) {
     }
     arrayHausse.sort(function(a, b) {
         return b.variation - a.variation;
-      });
+    });
 
     arrayBaisse.sort(function(a, b) {
         return a.variation - b.variation;
@@ -449,6 +469,16 @@ function generateVariation(data) {
     baisse2.innerHTML = "<img class='mt-2' src='assets/img/logoCM/" + arrayBaisse[1].logo + ".png' width='40'>" + traiterPrix(arrayBaisse[1].variation) + "%</div>";
     baisse3.innerHTML = "<img class='mt-2' src='assets/img/logoCM/" + arrayBaisse[2].logo + ".png' width='40'>" + traiterPrix(arrayBaisse[2].variation) + "%</div>";
     baisse4.innerHTML = "<img class='mt-2' src='assets/img/logoCM/" + arrayBaisse[3].logo + ".png' width='40'>" + traiterPrix(arrayBaisse[3].variation) + "%</div>";
+
+    document.getElementById("lienH1").setAttribute("href", "#panelsStayOpen-heading" + arrayHausse[0].rank)
+    document.getElementById("lienH2").setAttribute("href", "#panelsStayOpen-heading" + arrayHausse[1].rank)
+    document.getElementById("lienH3").setAttribute("href", "#panelsStayOpen-heading" + arrayHausse[2].rank)
+    document.getElementById("lienH4").setAttribute("href", "#panelsStayOpen-heading" + arrayHausse[3].rank)
+
+    document.getElementById("lienB1").setAttribute("href", "#panelsStayOpen-heading" + arrayBaisse[0].rank)
+    document.getElementById("lienB2").setAttribute("href", "#panelsStayOpen-heading" + arrayBaisse[1].rank)
+    document.getElementById("lienB3").setAttribute("href", "#panelsStayOpen-heading" + arrayBaisse[2].rank)
+    document.getElementById("lienB4").setAttribute("href", "#panelsStayOpen-heading" + arrayBaisse[3].rank)
 
     document.getElementById("hausse1").innerHTML = '';
     document.getElementById("hausse1").appendChild(hausse1);
