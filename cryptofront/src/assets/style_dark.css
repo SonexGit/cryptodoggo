@@ -70,3 +70,7 @@
 .pb {
     background-color: #3a86ff;
 }
+
+.logo {
+	content: url("img/logo_dark.png");
+}
