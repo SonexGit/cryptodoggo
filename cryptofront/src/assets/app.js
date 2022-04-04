@@ -1,16 +1,7 @@
-// var settings = {
-// 	"url": "https://api.coincap.io/v2/assets",
-// 	"method": "GET",
-// 	"timeout": 0,
-// };
-
-// var data;
-// $.ajax(settings).done(function (response) {
-//     console.log(response);
-//     data = response.data;
-//     generateCryptoList(data);
-// });
-
+/**
+ * Fonction permettant le rechargement des données toutes les X secondes
+ * @param timeout Le temps entre chaque rechargement (en millisecondes)
+ */
 function Timer(timeout) {
     this.interval = timeout ? timeout : 30000;   // Default
 
@@ -80,6 +71,10 @@ $.ajax({
 });
 
 var dataHistory;
+/**
+ * Fonction qui récupere les données historiques sur le graph
+ * @param link Le lien racine de l'API
+ */
 function getDataHistory(link) {
     if (link == '') {
         $.ajax({
@@ -102,7 +97,11 @@ function getDataHistory(link) {
         });
     }
 }
-
+/**
+ * Fonction pour convertir une monnaie en une autre
+ * @param monnaie Le nom de notre monnaie
+ * @param data Les données qu'on veut convertir
+ */
 function convertir(monnaie, data) {
     var taux;
     dataRates.forEach(element => {
@@ -117,7 +116,7 @@ function convertir(monnaie, data) {
 }
 
 /**
- * Permet de convertir un prix
+ * Fonction qui permet d arrondir un prix
  * @param unPrix 
  * @return unPrix
  */
@@ -156,6 +155,11 @@ function traiterPrix(unPrix) {
 
 var chart = new Array();
 
+/**
+ * Fonction permettant de charger un graphique selon l'état de son panneau : il est ouvert, le graphique se charge. Il est fermé, le graphique se détruit.
+ * @param rank Le rang de la cryptomonnaie
+ * @param etat Le panneau de la cryptomonnaie est-il ouvert ? ("open" ou "close")
+ */
 function loadGraph(rank, etat) {
 
     var button = document.getElementById("accordion-button" + rank);
@@ -230,7 +234,11 @@ var options = {
 
 var oldActive = new Array();
 var didFirstStart = new Array().fill(false);
-
+/**
+ * Fonction pour changer la datation des graphiques
+ * @param rank Le rang de la cryptomonnaie
+ * @param length Longueur temporel du graph
+ */
 function graphSet(rank, length) {
     var newData = new Array();
     var newCategories = new Array();
@@ -246,7 +254,7 @@ function graphSet(rank, length) {
     if (oldActive[rank] != undefined && didFirstStart[rank] == true) {
         divList.children[0].children[oldActive[rank]].classList.remove('listDateActive');
     }
-
+    //Pour 1 heure
     if (length == '1h') {
         divList.children[0].children[0].className = 'listDateActive';
         oldActive[rank] = 0;
@@ -255,6 +263,7 @@ function graphSet(rank, length) {
         dateEnd = Date.now();
         JSONargs = '?interval=m1&start=' + dateStart + '&end=' + dateEnd;
     }
+    //Pour 1 jour
     else if (length == '1d') {
         divList.children[0].children[1].className = 'listDateActive';
         oldActive[rank] = 1;
@@ -263,6 +272,7 @@ function graphSet(rank, length) {
         dateEnd = Date.now();
         JSONargs = '?interval=m30&start=' + dateStart + '&end=' + dateEnd;
     }
+    //Pour 1 semaine
     else if (length == '1w') {
         divList.children[0].children[2].className = 'listDateActive';
         oldActive[rank] = 2;
@@ -271,6 +281,7 @@ function graphSet(rank, length) {
         dateEnd = Date.now();
         JSONargs = '?interval=h1&start=' + dateStart + '&end=' + dateEnd;
     }
+    //Pour 1 mois
     else if (length == '1m') {
         divList.children[0].children[3].className = 'listDateActive';
         oldActive[rank] = 3;
@@ -279,6 +290,7 @@ function graphSet(rank, length) {
         dateEnd = Date.now();
         JSONargs = '?interval=d1&start=' + dateStart + '&end=' + dateEnd;
     }
+    //Pour 1 an
     else if (length == '1y') {
         if (didFirstStart[rank] == true) divList.children[0].children[4].className = 'listDateActive';
         oldActive[rank] = 4;
@@ -319,9 +331,14 @@ function graphSet(rank, length) {
 
 }
 
-/* Variable globale permettant de stocker si on charge un graphe pour la première fois */
+/* Variable globale remplissant l'Array de 0 pour pouvoir charger un graphe pour la première fois */
 var loadFirstTime = new Array(100).fill(0);
 
+/**
+ * Fonction chargeant toutes les données historiques d'une cryptomonnaie
+ * @param rank Le rang de la cryptomonnaie
+ * @return Les options du graphique
+ */
 function loadGraphData(rank) {
 
     var chOptions = options;
@@ -346,6 +363,10 @@ function loadGraphData(rank) {
 
 }
 
+/**
+* Génère une ligne accordion d'une cryptomonnaie passée en paramètre
+* @param element La variable contenant toutes les données d'une cryptomonnaie
+*/
 function addCryptoline(element) {
 
     // crée une balise div avec la classe accordion-item
@@ -419,6 +440,10 @@ function generateCryptoList(data) {
     data.forEach(element => addCryptoline(element))
 }
 
+/**
+ * Permet de générer les variations (hausses et baisses) des cryptomonnaies
+ * @param data Les données (assets) sur les cryptomonnaies
+ */
 function generateVariation(data) {
     var arrayHausse = []
     var arrayBaisse = []
@@ -432,7 +457,7 @@ function generateVariation(data) {
     var baisse2 = document.createElement("p");
     var baisse3 = document.createElement("p");
     var baisse4 = document.createElement("p");
-
+    
     for (const element of data) {
 
         if (element.changePercent24Hr > 0) {
@@ -503,9 +528,5 @@ function generateVariation(data) {
 var darkModeEnabled = false;
 
 function darkModeSwitch() {
-
-    if (!darkModeEnabled) {
-        // $('head').append('<link rel="stylesheet" href="" ');
-        darkModeEnabled = true;
-    }
+    if (!darkModeEnabled) darkModeEnabled = true;
 }
