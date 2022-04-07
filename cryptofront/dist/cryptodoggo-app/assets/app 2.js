@@ -1,21 +1,12 @@
-// var settings = {
-// 	"url": "https://api.coincap.io/v2/assets",
-// 	"method": "GET",
-// 	"timeout": 0,
-// };
-
-// var data;
-// $.ajax(settings).done(function (response) {
-// 	console.log(response);
-//  data = response.data;
-// 	generateCryptoList(data);
-// });
-
+/**
+ * Fonction permettant le rechargement des données toutes les X secondes
+ * @param timeout Le temps entre chaque rechargement (en millisecondes)
+ */
 function Timer(timeout) {
     this.interval = timeout ? timeout : 30000;   // Default
 
     this.run = function () {
-        setInterval(function () { 
+        setInterval(function () {
 
             $.ajax({
                 url: "https://api.coincap.io/v2/assets",
@@ -24,30 +15,30 @@ function Timer(timeout) {
                 success: function (json) {
                     data = json.data;
                     convertir(monnaieId, data);
-                    document.getElementById("accordionPanelsStayOpenExample").innerHTML="";
+                    document.getElementById("accordionPanelsStayOpenExample").innerHTML = "";
                     generateCryptoList(data);
                     generateVariation(data);
                 }
             });
-        
+
             $('.progress-bar').css('display', 'none');
 
         }, this.interval);
         setInterval(function () {
             var pourcent = 0;
             var counterBack = setInterval(function () {
-              pourcent++;
-              if (pourcent < 101) {
-                $('.progress-bar').css('display', 'flex');
-                $('.progress-bar').css('width', pourcent + '%');
-              } 
-              else {
-                clearInterval(counterBack);
-              }
+                pourcent++;
+                if (pourcent < 101) {
+                    $('.progress-bar').css('display', 'flex');
+                    $('.progress-bar').css('width', pourcent + '%');
+                }
+                else {
+                    clearInterval(counterBack);
+                }
             }, this.interval / 100);
         }, this.interval * 0.933333333333333);
     };
-    
+
 }
 
 var timer = new Timer(30000);
@@ -80,6 +71,10 @@ $.ajax({
 });
 
 var dataHistory;
+/**
+ * Fonction qui récupere les données historiques sur le graph
+ * @param link Le lien racine de l'API
+ */
 function getDataHistory(link) {
     if (link == '') {
         $.ajax({
@@ -102,7 +97,11 @@ function getDataHistory(link) {
         });
     }
 }
-
+/**
+ * Fonction pour convertir une monnaie en une autre
+ * @param monnaie Le nom de notre monnaie
+ * @param data Les données qu'on veut convertir
+ */
 function convertir(monnaie, data) {
     var taux;
     dataRates.forEach(element => {
@@ -117,7 +116,7 @@ function convertir(monnaie, data) {
 }
 
 /**
- * Permet de convertir un prix
+ * Fonction qui permet d arrondir un prix
  * @param unPrix 
  * @return unPrix
  */
@@ -156,35 +155,40 @@ function traiterPrix(unPrix) {
 
 var chart = new Array();
 
+/**
+ * Fonction permettant de charger un graphique selon l'état de son panneau : il est ouvert, le graphique se charge. Il est fermé, le graphique se détruit.
+ * @param rank Le rang de la cryptomonnaie
+ * @param etat Le panneau de la cryptomonnaie est-il ouvert ? ("open" ou "close")
+ */
 function loadGraph(rank, etat) {
 
     var button = document.getElementById("accordion-button" + rank);
 
     if (etat == "open") {
-        
+
         /* Affichage du graphe */
         button.setAttribute("onclick", "loadGraph(" + rank + ", 'close')")
         const options = loadGraphData(rank);
         chart[rank] = new ApexCharts(document.querySelector("#chart" + rank), options);
         chart[rank].render();
-        
+
         /* Affichage des changements de fenêtre de temps */
         var divList = document.createElement('div');
         divList.id = 'divListDate' + rank;
         divList.style = 'text-align: left !important;';
         var list = document.createElement('ul');
         list.className = 'listDate';
-        list.innerHTML = 
-        `
-            <li onclick="graphSet(' + rank + ', \'1h\')">1H</li>
-            <li onclick="graphSet(' + rank + ', \'1d\')">1J</li>
-            <li onclick="graphSet(' + rank + ', \'1w\')">1S</li>
-            <li onclick="graphSet(' + rank + ', \'1m\')">1M</li>
-            <li onclick="graphSet(' + rank + ', \'1y\')" class="listDateActive">1A</li>
+        list.innerHTML =
+            `
+            <li onclick="graphSet('${rank}', \'1h\')">1H</li>
+            <li onclick="graphSet('${rank}', \'1d\')">1J</li>
+            <li onclick="graphSet('${rank}', \'1w\')">1S</li>
+            <li onclick="graphSet('${rank}', \'1m\')">1M</li>
+            <li onclick="graphSet('${rank}', \'1y\')" class="listDateActive">1A</li>
         `
         divList.append(list);
         document.querySelector("#chart" + rank).after(divList);
-    }else {
+    } else {
 
         button.setAttribute("onclick", "loadGraph(" + rank + ", 'open')")
         chart[rank].destroy();
@@ -194,50 +198,54 @@ function loadGraph(rank, etat) {
 
 /* On initialise notre graphe avec des valeurs de base */
 var options = {
-	chart: {
-		height: 250,
-		type: 'area'
-	},
-	series: [{
-		name: '',
-		data: []
-	}],
-	xaxis: {
-		type: 'datetime',
-		categories: []
-	},
-	yaxis: {
-		labels: {
-			formatter: function (value) {
+    chart: {
+        height: 250,
+        type: 'area'
+    },
+    series: [{
+        name: '',
+        data: []
+    }],
+    xaxis: {
+        type: 'datetime',
+        categories: []
+    },
+    yaxis: {
+        labels: {
+            formatter: function (value) {
                 if (monnaie.currencySymbol) return value.toFixed(4) + monnaie.currencySymbol;
                 else return value.toFixed(4) + monnaie.symbol;
-			}
-		},
-	},
-	colors: [ '#ffc850' ],
-	fill: {
-		colors: [ '#ffc850' ]
-	},
-	tooltip: {
-		x: {
-			show: false
-		}
-	},
-	dataLabels: {
-		enabled: false
-	}
+            }
+        },
+    },
+    colors: ['#ffc850'],
+    fill: {
+        colors: ['#ffc850']
+    },
+    tooltip: {
+        x: {
+            show: false
+        }
+    },
+    dataLabels: {
+        enabled: false
+    }
 }
 
 var oldActive = new Array();
 var didFirstStart = new Array().fill(false);
-
+/**
+ * Fonction pour changer la datation des graphiques
+ * @param rank Le rang de la cryptomonnaie
+ * @param length Longueur temporel du graph
+ */
 function graphSet(rank, length) {
     var newData = new Array();
     var newCategories = new Array();
     var newDataHistory;
 
     var JSONargs = '';
-    var JSONlink = 'https://api.coincap.io/v2/assets/'+ data[rank - 1].id + '/history';
+    var JSONlink = 'https://api.coincap.io/v2/assets/' + data[rank - 1].id + '/history';
     var dateEnd = new Date(Date.now());
     var dateStart = dateEnd;
 
@@ -246,15 +254,16 @@ function graphSet(rank, length) {
     if (oldActive[rank] != undefined && didFirstStart[rank] == true) {
         divList.children[0].children[oldActive[rank]].classList.remove('listDateActive');
     }
-
+    //Pour 1 heure
     if (length == '1h') {
         divList.children[0].children[0].className = 'listDateActive';
         oldActive[rank] = 0;
-		dateStart.setHours(dateEnd.getHours() - 1);
+        dateStart.setHours(dateEnd.getHours() - 1);
         dateStart = dateStart.getTime();
         dateEnd = Date.now();
         JSONargs = '?interval=m1&start=' + dateStart + '&end=' + dateEnd;
     }
+    //Pour 1 jour
     else if (length == '1d') {
         divList.children[0].children[1].className = 'listDateActive';
         oldActive[rank] = 1;
@@ -263,14 +272,16 @@ function graphSet(rank, length) {
         dateEnd = Date.now();
         JSONargs = '?interval=m30&start=' + dateStart + '&end=' + dateEnd;
     }
+    //Pour 1 semaine
     else if (length == '1w') {
         divList.children[0].children[2].className = 'listDateActive';
         oldActive[rank] = 2;
-        dateStart.setDate(dateStart.getDate() - 7); 
+        dateStart.setDate(dateStart.getDate() - 7);
         dateStart = dateStart.getTime();
         dateEnd = Date.now();
         JSONargs = '?interval=h1&start=' + dateStart + '&end=' + dateEnd;
     }
+    //Pour 1 mois
     else if (length == '1m') {
         divList.children[0].children[3].className = 'listDateActive';
         oldActive[rank] = 3;
@@ -279,14 +290,15 @@ function graphSet(rank, length) {
         dateEnd = Date.now();
         JSONargs = '?interval=d1&start=' + dateStart + '&end=' + dateEnd;
     }
+    //Pour 1 an
     else if (length == '1y') {
         if (didFirstStart[rank] == true) divList.children[0].children[4].className = 'listDateActive';
         oldActive[rank] = 4;
-        dateEnd.setHours(0,0,0,0);
+        dateEnd.setHours(0, 0, 0, 0);
         dateStart.setFullYear(new Date().getFullYear() - 1);
         dateStart = dateStart.getTime();
         dateEnd = new Date(Date.now());
-        dateEnd.setHours(0,0,0,0);
+        dateEnd.setHours(0, 0, 0, 0);
         dateEnd = dateEnd.getTime();
 
         JSONargs = '?interval=d1&start=' + dateStart + '&end=' + dateEnd;
@@ -311,17 +323,22 @@ function graphSet(rank, length) {
             }
         })
     }
-    catch(e) {
+    catch (e) {
         console.log(e);
     }
-    
+
     didFirstStart[rank] = true;
-    
+
 }
 
-/* Variable globale permettant de stocker si on charge un graphe pour la première fois */
+/* Variable globale remplissant l'Array de 0 pour pouvoir charger un graphe pour la première fois */
 var loadFirstTime = new Array(100).fill(0);
 
+/**
+ * Fonction chargeant toutes les données historiques d'une cryptomonnaie
+ * @param rank Le rang de la cryptomonnaie
+ * @return Les options du graphique
+ */
 function loadGraphData(rank) {
 
     var chOptions = options;
@@ -335,7 +352,7 @@ function loadGraphData(rank) {
     }
 
     chOptions.series[0].data = [];
-	chOptions.xaxis.categories = [];
+    chOptions.xaxis.categories = [];
 
     for (var elem in dataHistory) {
         chOptions.series[0].data.push(Number(dataHistory[elem].priceUsd / monnaie.rateUsd).toFixed(5));
@@ -346,6 +363,10 @@ function loadGraphData(rank) {
 
 }
 
+/**
+* Génère une ligne accordion d'une cryptomonnaie passée en paramètre
+* @param element La variable contenant toutes les données d'une cryptomonnaie
+*/
 function addCryptoline(element) {
 
     // crée une balise div avec la classe accordion-item
@@ -373,8 +394,8 @@ function addCryptoline(element) {
 
     // ajoute un tableau à l'intérieur du bouton
 
-    button.innerHTML = 
-    `
+    button.innerHTML =
+        `
         <table class='header-left'>
             <tr>
                 <td class='rankCrypto'>#${element.rank}</td>
@@ -419,10 +440,14 @@ function generateCryptoList(data) {
     data.forEach(element => addCryptoline(element))
 }
 
+/**
+ * Permet de générer les variations (hausses et baisses) des cryptomonnaies
+ * @param data Les données (assets) sur les cryptomonnaies
+ */
 function generateVariation(data) {
     var arrayHausse = []
     var arrayBaisse = []
-    
+
     var hausse1 = document.createElement("p");
     var hausse2 = document.createElement("p");
     var hausse3 = document.createElement("p");
@@ -432,7 +457,7 @@ function generateVariation(data) {
     var baisse2 = document.createElement("p");
     var baisse3 = document.createElement("p");
     var baisse4 = document.createElement("p");
-
+    
     for (const element of data) {
 
         if (element.changePercent24Hr > 0) {
@@ -452,14 +477,14 @@ function generateVariation(data) {
         }
 
     }
-    arrayHausse.sort(function(a, b) {
+    arrayHausse.sort(function (a, b) {
         return b.variation - a.variation;
     });
 
-    arrayBaisse.sort(function(a, b) {
+    arrayBaisse.sort(function (a, b) {
         return a.variation - b.variation;
     });
-    
+
     hausse1.innerHTML = "<img class='mt-2' src='assets/img/logoCM/" + arrayHausse[0].logo + ".png' width='40'>" + traiterPrix(arrayHausse[0].variation) + "%</div>";
     hausse2.innerHTML = "<img class='mt-2' src='assets/img/logoCM/" + arrayHausse[1].logo + ".png' width='40'>" + traiterPrix(arrayHausse[1].variation) + "%</div>";
     hausse3.innerHTML = "<img class='mt-2' src='assets/img/logoCM/" + arrayHausse[2].logo + ".png' width='40'>" + traiterPrix(arrayHausse[2].variation) + "%</div>";
@@ -497,15 +522,11 @@ function generateVariation(data) {
     document.getElementById("baisse3").appendChild(baisse3);
     document.getElementById("baisse4").innerHTML = '';
     document.getElementById("baisse4").appendChild(baisse4);
-    
+
 }
 
 var darkModeEnabled = false;
 
 function darkModeSwitch() {
-
-    if (!darkModeEnabled) {
-        // $('head').append('<link rel="stylesheet" href="" ');
-        darkModeEnabled = true;
-    }
+    if (!darkModeEnabled) darkModeEnabled = true;
 }
